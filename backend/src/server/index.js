@@ -4,14 +4,16 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const config = require('../configuration')
 
 const app = express();
-const port = process.env.PORT || 5000;
+
+const databaseUrl = config.get('DATABASE_URL')
 
 //connect to the database
-/* mongoose.connect(`mongodb:${databaseUrl}`, {useNewUrlParser: true})
+mongoose.connect(`mongodb:${databaseUrl}`, {useNewUrlParser: true})
     .then(() => console.log('Database connected successfully'))
-    .catch(err => console.log(err)) */
+    .catch(err => console.log(err))
 
 //since mongoose promise is depreciated, we overide it with node's promise
 mongoose.Promise = global.Promise;
@@ -34,4 +36,4 @@ app.use((err, req, res, next) => {
     next();
 });
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+module.exports = app
