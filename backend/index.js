@@ -1,6 +1,14 @@
+const program = require('commander')
 const Server = require('./src/server')
-const config = require('./src/configuration')
 
-const port = config.get('PORT')
+program.version('0.0.1')
+    .option('-s, --server', 'Whether to run with express server')
+    .parse(process.argv)
 
-Server.listen(port, () => console.log(`Server running on port ${port}`))
+const main = async () => {
+    const { server } = program
+    
+    if (server) { Server.start() }
+}
+
+main()
