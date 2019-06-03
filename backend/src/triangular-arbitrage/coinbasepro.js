@@ -2,7 +2,7 @@ const CoinbasePro = require('coinbase-pro')
 
 class CoinbaseProTriArb {
     constructor() {
-        this.client = new CoinbasePro.PublicClient('BTC-EUR'); 
+        this.client = new CoinbasePro.PublicClient(); 
     }
 
     async start() {
@@ -21,12 +21,13 @@ class CoinbaseProTriArb {
 
         filtered_pairs.forEach(pair => {
             const { id, base_currency, quote_currency } = pair
-            const base_pairs = []
-            const quote_pairs = []
-            const arb_pairs = []
+            var base_pairs = []
+            var quote_pairs = []
+            var arb_pairs = []
 
             for (let i = 0; i < filtered_pairs.length; i++) {
-                const { id: other_id } = filtered_pairs[i]
+                const other = filtered_pairs[i]
+                const { id: other_id } = other
                 if (id === other_id) { continue }
                 
                 if (other_id.includes(base_currency)) { base_pairs.push(other) } 
@@ -58,9 +59,11 @@ class CoinbaseProTriArb {
                     if (base.base_currency === quote.base_currency) { arb_pairs.push([base, quote]) }
                 })
             })
-            
+
             arbitrage[id] = arb_pairs
         })
+
+        console.log(arbitrage)
 
     }
 
