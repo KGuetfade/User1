@@ -10,16 +10,7 @@ module.exports = {
     start: () => {
         const app = express();
 
-        const port = config.get('PORT')
-        const databaseUrl = config.get('DATABASE_URL')
-        
-        //connect to the database
-        mongoose.connect(`mongodb:${databaseUrl}`, {useNewUrlParser: true})
-            .then(() => console.log('Database connected successfully'))
-            .catch(err => console.log(err))
-        
-        //since mongoose promise is depreciated, we overide it with node's promise
-        mongoose.Promise = global.Promise;
+        const port = config.get('PORT')        
         
         //enhance app security with helmet
         app.use(helmet());
