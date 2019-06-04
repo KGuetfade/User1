@@ -3,7 +3,7 @@ const Server = require('./src/server')
 const database = require('./src/database')
 const coinbaseModel = require('./src/models/coinbasepro')
 
-const { CoinbaseProSimpleTriArb } = require('./src/triangular-arbitrage')
+const { CoinbaseProTriArbScanner } = require('./src/triangular-arbitrage')
 
 program.version('0.0.1')
     .option('-s, --server', 'Whether to run with express server')
@@ -16,9 +16,11 @@ const main = async () => {
     
     await database.connect() 
 
-    const coinbasepro = new CoinbaseProSimpleTriArb()
+    const coinbasepro = new CoinbaseProTriArbScanner()
+    await coinbasepro.initialize()
     const result = await coinbasepro.start()
-    coinbasepro.print(result)
+    coinbasepro.print(result) 
+    console.log(result.length)
     
     /* const data = await coinbaseModel.find({})
     const sorted = data.sort((a,b) => {
@@ -27,8 +29,9 @@ const main = async () => {
         else { return 0 }
     })
 
-    console.log(sorted[0])
-    console.log(sorted[1])
+    for (let i = 0; i < 10; i++) {
+        console.log(sorted[i])
+    }
     console.log(sorted[sorted.length - 1]) */
 
     /* const coinbasepro = new CoinbaseProSimpleTriArb()

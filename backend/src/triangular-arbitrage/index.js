@@ -1,3 +1,3 @@
-const CoinbaseProSimpleTriArb = require('./coinbasepro-simple')
+const CoinbaseProTriArbScanner = require('./coinbasepro')
 
-exports.CoinbaseProSimpleTriArb = CoinbaseProSimpleTriArb
+exports.CoinbaseProTriArbScanner = CoinbaseProTriArbScanner
