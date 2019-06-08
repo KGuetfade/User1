@@ -1,4 +1,5 @@
 const CoinbasePro = require('coinbase-pro')
+const EventEmitter = require('events')
 
 class OrderbookFeed {
     constructor({ products, onMessage }) {
@@ -11,6 +12,13 @@ class OrderbookFeed {
         this.syncOrderbooks.on('message', data => {
             this.onMessage(this.syncOrderbooks)
         })
+    }
+
+    stop() {
+        this.syncOrderbooks.removeAllListeners()
+        this.syncOrderbooks.socket.removeAllListeners()
+        this.syncOrderbooks.socket = null
+        this.syncOrderbooks = null
     }
 }
 

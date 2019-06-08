@@ -20,13 +20,18 @@ class Trader {
                 })
 
                 const result = this.calculator.calculatePercentage()                
-                this.calculator.calculateSizes({ steps: result.steps })    
+                this.calculator.calculateSizes({ steps: result.steps })   
                 this.saveToDatabase(result)            
             }
         }
 
-        const feed = new OrderbookFeed({ products: this.products, onMessage })
-        feed.start()
+        this.feed = new OrderbookFeed({ products: this.products, onMessage })
+        this.feed.start()
+    }
+
+    stop() {
+        this.feed.stop()
+        this.feed = null
     }
 
     orderbooksNotEmpty(orderbooks) {
