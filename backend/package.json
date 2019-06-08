@@ -7,13 +7,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "watch": "nodemon index.js",
-    "both": "concurrently \"npm run watch\" \"cd ../frontend && npm start\""
+    "both": "concurrently \"npm run watch\" \"cd ../frontend && npm start\"",
+    "data": "\"cd ./data-analysis && node index.js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.18.0",
+    "bignumber.js": "^9.0.0",
     "body-parser": "^1.19.0",
     "coinbase-pro": "^0.9.0",
     "commander": "^2.20.0",

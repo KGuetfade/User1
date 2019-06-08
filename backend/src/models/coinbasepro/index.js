@@ -1,20 +1,18 @@
 const mongoose = require('mongoose')
 
 const CoinbaseProSchema = new mongoose.Schema({
-    original: String,
-    pair1: String,
-    pair2: String,
-    pair1_price: Number,
-    pair2_price: Number,
-    original_price: Number,
-    triangular_price: Number,
+    steps: {
+        type: [Object],
+        default: []
+    },
     percentage: Number,
     time: {
         type: Date,
         index: true
-    }
+    },
+    duration: Number
 })
 
-const CoinbaseProModel = new mongoose.model('coinbase', CoinbaseProSchema)
+const CoinbaseProModel = new mongoose.model("coinbase", CoinbaseProSchema)
 
 module.exports = CoinbaseProModel

@@ -5,7 +5,7 @@ module.exports = {
     connect: async () => {
         const databaseUrl = config.get('DATABASE_URL')
         try {
-            await mongoose.connect(`mongodb:${databaseUrl}`, {
+            await mongoose.connect(databaseUrl, {
                 useNewUrlParser: true, 
                 promiseLibrary: global.Promise
             })

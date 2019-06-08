@@ -1,9 +1,7 @@
 const program = require('commander')
 const Server = require('./src/server')
-const database = require('./src/database')
-const coinbaseModel = require('./src/models/coinbasepro')
-
-const { CoinbaseProTriArbScanner } = require('./src/triangular-arbitrage')
+const Trader = require('./src/trader')
+const Database = require('./src/database')
 
 program.version('0.0.1')
     .option('-s, --server', 'Whether to run with express server')
@@ -12,39 +10,16 @@ program.version('0.0.1')
 const main = async () => {
     const { server } = program
     
+    await Database.connect()
+
     if (server) { Server.start() }
-    
-    await database.connect() 
 
-    const coinbasepro = new CoinbaseProTriArbScanner()
-    await coinbasepro.initialize()
-    const result = await coinbasepro.start()
-    coinbasepro.print(result) 
-    console.log(result.length)
-    
-    /* const data = await coinbaseModel.find({})
-    const sorted = data.sort((a,b) => {
-        if (a.percentage > b.percentage) { return -1 }
-        else if (a.percentage < b.percentage) { return 1 }
-        else { return 0 }
-    })
+    const trader = new Trader({ products: ['BTC-EUR', 'ETH-EUR', 'ETH-BTC'] })
+    trader.start()
 
-    for (let i = 0; i < 10; i++) {
-        console.log(sorted[i])
-    }
-    console.log(sorted[sorted.length - 1]) */
 
-    /* const coinbasepro = new CoinbaseProSimpleTriArb()
-    setInterval(async () => {
-        const arb = await coinbasepro.start()
-        if (arb) {
-            arb.forEach(async a => {
-                try {                
-                    await coinbaseModel.create(a)                
-                } catch (error) { console.log(error) }            
-            })
-        }        
-    }, 12000) */
 }
 
-main()
+try {
+    main()
+} catch(error) { console.log(error) }
