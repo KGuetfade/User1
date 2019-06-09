@@ -35,34 +35,39 @@ const start = async () => {
     console.log(`Above .5%: ${highest.filter(h => h.percentage > 0.5).length}`)
     console.log(`Above .3%: ${highest.filter(h => h.percentage > 0.3).length}\n`)
 
-    console.log(`Accumulative profit percentage: ${highest.filter(h => h.percentage > 0.75)
-                                                        .reduce((acc, h) => {
-                                                            return acc + (h.percentage - .75)
-                                                        }, 0)}`)
-    console.log(`Max profit potential: ${highest.filter(h => h.percentage > 0.75)
-                                                .reduce((acc, h) => {
-                                                    const firstStep = h.steps[0]
-                                                    const euro = firstStep.type === 'buy' ? BigNumber(firstStep.funds) :
-                                                                                            BigNumber(firstStep.size).times(6934.85)
-                                                    const gainPercentage = h.percentage - .75
-                                                    const profit = euro * gainPercentage
-                                                    if (euro.isGreaterThan(10)) { return acc + profit } else { return acc }
-                                                }, 0)}`)     
-    console.log(`Max funds needed: ${highest.filter(h => h.percentage > 0.75)
-                                            .sort((a,b) => {
-                                                const firstStepA = a.steps[0]
-                                                const firstStepB = b.steps[0]
+    const per = .75
+    const filter = highest.filter(h => h.percentage > per)
 
-                                                const eurA = firstStepA.type === 'buy' ? BigNumber(firstStepA.funds) :
-                                                                                         BigNumber(firstStepA.size).times(6934.85)
-                                                const eurB = firstStepB.type === 'buy' ? BigNumber(firstStepB.funds) :
-                                                                                         BigNumber(firstStepB.size).times(6934.85)
-
-                                                if (eurA.isGreaterThan(eurB)) { return -1 }
-                                                else if (eurB.isGreaterThan(eurA)) { return 1 }
-                                                else { return 0 }
-
-                                            })[0]}`)                                                                                                   
+    console.log(`Accumulative profit percentage: ${filter.reduce((acc, h) => {
+                                                    return acc + (h.percentage - per)
+                                                }, 0)}`)
+    console.log(`Max profit potential: ${filter.reduce((acc, h) => {
+                                            const firstStep = h.steps[0]
+                                            const euro = firstStep.type === 'buy' ? BigNumber(firstStep.funds) :
+                                                                                    BigNumber(firstStep.size).times(6982.99)
+                                            const gainPercentage = BigNumber(h.percentage).minus(per).dividedBy(100)
+                                            const profit = euro * gainPercentage
+                                            if (euro.isGreaterThan(10)) { return acc + profit } else { return acc }
+                                        }, 0)}`)     
+    console.log(`Max funds needed: ${filter.map(h => {
+                                        const firstStep = h.steps[0]
+                                        const euro = firstStep.type === 'buy' ? BigNumber(firstStep.funds) :
+                                                                                BigNumber(firstStep.size).times(6982.99)
+                                        return euro
+                                    })
+                                    .sort((a,b) => {
+                                        if (a.isGreaterThan(b)) { return -1 }
+                                        else if (b.isGreaterThan(a)) { return 1 }
+                                        else { return 0 }
+                                    })[0] * 3}`)
+    const totalVolume = filter.reduce((acc, h) => {
+                                const firstStep = h.steps[0]
+                                const euro = firstStep.type === 'buy' ? BigNumber(firstStep.funds) :
+                                                                        BigNumber(firstStep.size).times(6982.99)
+                                return acc + euro * 3
+                            }, 0)
+    console.log(`Total volume: ${totalVolume}`)         
+    console.log(`Average volume: ${totalVolume / filter.length / 3}`)                                                                                           
 }
 
 start()
