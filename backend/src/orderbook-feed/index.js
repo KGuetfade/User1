@@ -10,6 +10,9 @@ class OrderbookFeed {
 
     start() {
         this.syncOrderbooks.on('message', data => {
+            if (data.product_id === 'BTC-EUR') {
+                console.log(data.sequence)
+            }
             this.logPerformance()
             this.onMessage(this.syncOrderbooks)            
         })
