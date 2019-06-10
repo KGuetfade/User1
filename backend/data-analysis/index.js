@@ -5,7 +5,9 @@ const BigNumber = require('bignumber.js')
 const start = async () => {
     await Database.connect()
     
+    console.log('getting data...\n')
     const data = await coinbaseModel.find({})
+    console.log('Performing calulations...\n')
 
     const highest = data.sort((a,b) => {
         if (a.percentage > b.percentage) { return -1 }
@@ -18,6 +20,8 @@ const start = async () => {
         else if (a.time < b.time) { return -1 }
         else { return 0 }
     })
+
+    console.log(`Total amount: ${data.length}\n`)
 
     console.log(`20 highest percentages`)
     for (let i = 0; i < 20; i++) {
@@ -70,4 +74,6 @@ const start = async () => {
     console.log(`Average volume: ${totalVolume / filter.length / 3}`)                                                                                           
 }
 
-start()
+try {
+    start()
+} catch(err) { console.log(err) }

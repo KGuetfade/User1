@@ -21,12 +21,12 @@ const main = async () => {
     let trader = new Trader({ products: ['BTC-EUR', 'ETH-EUR', 'ETH-BTC'] })
     trader.start()
 
-    setInterval(async () => {
+    /* setInterval(async () => {
         trader.stop()
         await timeout(1000 * 10)
         console.log(`Restarting socket connection`)
         trader.start()
-    }, 1000 * 60 * 10)
+    }, 1000 * 60 * 10) */
 }
 
 try {
