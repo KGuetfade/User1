@@ -24,6 +24,7 @@ class OrderbookFeed {
 
     logPerformance() {
         if (!this.startTime) {
+            console.log(`[${new Date()}] Starting performance check`)
             this.startTime = new Date().getTime()
             this.ticks = 0
             return
@@ -36,7 +37,6 @@ class OrderbookFeed {
             this.startTime = this.now
             this.ticks = 0
         }
-
     }
 }
 

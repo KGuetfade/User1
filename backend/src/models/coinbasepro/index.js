@@ -13,6 +13,6 @@ const CoinbaseProSchema = new mongoose.Schema({
     duration: Number
 })
 
-const CoinbaseProModel = new mongoose.model("coinbase", CoinbaseProSchema)
+const CoinbaseProModel = new mongoose.model("coinbasenew", CoinbaseProSchema)
 
 module.exports = CoinbaseProModel

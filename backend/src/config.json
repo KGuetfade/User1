@@ -5,5 +5,6 @@
     "COINBASE_PRO_API_SECRET":"uptkMXIS/4L5SfM46yGvfcP0aQCRycIHyzCyDsuZaTgAuE3V4iJN84gOxeIuc7Q0JHyELQqAOoJvhStq4802zA==",
     "COINBASE_PRO_API_PASSPHRASE": "p94b2kkgla9",
     "COINBASE_PRO_API_URL":"https://api.pro.coinbase.com",
-    "COINBASE_PRO_WS_URL":"wss://ws-feed.pro.coinbase.com"
+    "COINBASE_PRO_WS_URL":"wss://ws-feed.pro.coinbase.com",
+    "BINANCE_WS_URL":"wss://stream.binance.com:9443"
 }

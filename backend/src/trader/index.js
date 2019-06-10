@@ -21,7 +21,7 @@ class Trader {
 
                 const result = this.calculator.calculatePercentage()                
                 this.calculator.calculateSizes({ steps: result.steps })   
-                /* this.saveToDatabase(result)   */          
+                this.saveToDatabase(result)
             }
         }
 

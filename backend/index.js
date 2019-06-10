@@ -1,6 +1,5 @@
 const program = require('commander')
-const Server = require('./src/server')
-const Trader = require('./src/trader')
+const App = require('./src/app')
 const Database = require('./src/database')
 
 function timeout(ms) {
@@ -12,21 +11,9 @@ program.version('0.0.1')
     .parse(process.argv)
 
 const main = async () => {
-    const { server } = program
-    
     await Database.connect()
-
-    if (server) { Server.start() }
-
-    let trader = new Trader({ products: ['BTC-EUR', 'ETH-EUR', 'ETH-BTC'] })
-    trader.start()
-
-    /* setInterval(async () => {
-        trader.stop()
-        await timeout(1000 * 10)
-        console.log(`Restarting socket connection`)
-        trader.start()
-    }, 1000 * 60 * 10) */
+    const app = new App()
+    app.start()
 }
 
 try {
