@@ -1,45 +1,60 @@
 const CoinbasePro = require('coinbase-pro')
 const EventEmitter = require('events')
+const BigNumber = require('bignumber.js')
 
-class OrderbookFeed {
-    constructor({ products, onMessage }) {
+class OrderbookFeed extends EventEmitter{
+    constructor(products) {
+        super()
         this.products = products
-        this.onMessage = onMessage
         this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);
+
+        this.lastState = {}
+        this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
     }
 
-    start() {
-        this.syncOrderbooks.on('message', data => {
-            if (data.product_id === 'BTC-EUR') {
-                console.log(data.sequence)
+    /**
+     * Currently just checks if anything has changed across
+     * all orderbooks.
+     */
+    checkForUpdates(data) {
+        for (let i = 0; i < this.products.length; i++) {
+            const product = this.products[i]
+            const book = this.syncOrderbooks[product].state()
+            const hasChanged = this.hasChanged(product, book)
+            if (hasChanged) { 
+                this.emit('update', product)
+                break
             }
-            this.logPerformance()
-            this.onMessage(this.syncOrderbooks)            
-        })
+        }
     }
 
-    stop() {
+    /**
+     * Checks if the top bids and asks of the orderbook have changed.
+     */
+    hasChanged(productId, book) {
+        const lastState = this.lastState[productId]
+        const topBid = book['bids'][0]
+        const topAsk = book['asks'][0]
+
+        if (topBid  || topAsk === undefined) { return false }
+        if (lastState === undefined) { 
+            this.lastState[productId] = { topBid, topAsk }
+            return false
+        }
+
+        if (!lastState.topBid.price.isEqualTo(topBid.price)) { return true }
+        if (!lastState.topBid.size.isEqualTo(topBid.size)) { return true }
+        if (!lastState.topAsk.price.isEqualTo(topAsk.price)) { return true }
+        if (!lastState.topAsk.size.isEqualTo(topAsk.size)) { return true }
+
+        return false
+    }
+
+    clean() {
         this.syncOrderbooks.removeAllListeners()
         this.syncOrderbooks.socket.removeAllListeners()
         this.syncOrderbooks.socket = null
         this.syncOrderbooks = null
-    }
-
-    logPerformance() {
-        if (!this.startTime) {
-            console.log(`[${new Date()}] Starting performance check`)
-            this.startTime = new Date().getTime()
-            this.ticks = 0
-            return
-        }
-
-        this.now = new Date().getTime()
-        this.ticks++
-        if (this.now - this.startTime >= 1000 * 60) {
-            console.log(`[${new Date()}] Performance: ${this.ticks} ticks`)
-            this.startTime = this.now
-            this.ticks = 0
-        }
     }
 }
 
