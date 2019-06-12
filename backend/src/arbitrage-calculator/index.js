@@ -6,11 +6,11 @@ const BigNumber = require('bignumber.js')
  * Takes in buy and sell method for handling buying and selling on an orderbook.
  */
 class ArbitrageCalculator {
-    constructor({ products }) {
+    constructor(products) {
         this.products = products
     }
 
-    update({ products }) {
+    update(products) {
         this.products = products
     }
 
@@ -43,7 +43,7 @@ class ArbitrageCalculator {
         return BigNumber(size)
     }
 
-    checkCycle({ steps, startIndex }) {
+    checkCycle(steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
@@ -62,7 +62,7 @@ class ArbitrageCalculator {
         return true
     }
 
-    adjustSizes({ steps, startIndex }) {
+    adjustSizes(steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         next = BigNumber(next)
         for (let i = 0; i < 3; i++) {
@@ -89,8 +89,8 @@ class ArbitrageCalculator {
         const { id: id3 } = this.products[2]
         const ids = [id1, id2, id3]
 
-        const buySteps = this.calculateSteps({ ids, type: 'buy' })
-        const sellSteps = this.calculateSteps({ ids, type: 'sell' })
+        const buySteps = this.calculateSteps(ids, 'buy')
+        const sellSteps = this.calculateSteps(ids, 'sell')
 
         const buyResult = buySteps.reduce((acc, step) => {
             const { orderbook } = this.products[step.index]
@@ -118,7 +118,7 @@ class ArbitrageCalculator {
      * Takes in steps to trade on.
      * Returns steps with sizes / funds to execute trade.
      */
-    calculateSizes({ steps }) {
+    calculateSizes(steps) {
         steps.forEach(step => {
             if (step.type === 'buy') {
                 step.funds = this.maxBuy(this.products[step.index].orderbook)
@@ -127,9 +127,9 @@ class ArbitrageCalculator {
             }
         })
         
-        const useFirst = this.checkCycle({ steps, startIndex: 0 })
-        const useSecond = this.checkCycle({ steps, startIndex: 1 })
-        const useThird = this.checkCycle({ steps, startIndex: 2 })
+        const useFirst = this.checkCycle(steps, 0)
+        const useSecond = this.checkCycle(steps, 1)
+        const useThird = this.checkCycle(steps, 2)
 
         if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird || !(useFirst || useSecond || useThird)) {
             throw new Error('Something wrong with size calculation!')
@@ -137,7 +137,7 @@ class ArbitrageCalculator {
 
         const startIndex = useFirst ? 0 : useSecond ? 1 : 2
 
-        this.adjustSizes({ steps, startIndex })
+        this.adjustSizes(steps, startIndex)
     }
 
     /**
@@ -146,7 +146,7 @@ class ArbitrageCalculator {
      * Returns array with 3 objects representing the steps. 
      * Each object has a type (buy / sell), an index (id to transact on) and the id itself
      */
-    calculateSteps({ ids, type }) {
+    calculateSteps(ids, type) {
         const steps = []
         const id1 = ids[0]
         const id2 = ids[1]

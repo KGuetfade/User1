@@ -7,8 +7,8 @@ class OrderbookFeed extends EventEmitter{
         super()
         this.products = products
         this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);
-
         this.lastState = {}
+
         this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
     }
 
@@ -19,10 +19,10 @@ class OrderbookFeed extends EventEmitter{
     checkForUpdates(data) {
         for (let i = 0; i < this.products.length; i++) {
             const product = this.products[i]
-            const book = this.syncOrderbooks[product].state()
+            const book = this.syncOrderbooks.books[product].state()
             const hasChanged = this.hasChanged(product, book)
             if (hasChanged) { 
-                this.emit('update', product)
+                this.emit('update', this.syncOrderbooks)
                 break
             }
         }
@@ -34,18 +34,18 @@ class OrderbookFeed extends EventEmitter{
     hasChanged(productId, book) {
         const lastState = this.lastState[productId]
         const topBid = book['bids'][0]
-        const topAsk = book['asks'][0]
+        const topAsk = book['asks'][0]    
 
-        if (topBid  || topAsk === undefined) { return false }
+        if (topBid === undefined || topAsk === undefined) { return false }
         if (lastState === undefined) { 
             this.lastState[productId] = { topBid, topAsk }
             return false
         }
 
-        if (!lastState.topBid.price.isEqualTo(topBid.price)) { return true }
-        if (!lastState.topBid.size.isEqualTo(topBid.size)) { return true }
-        if (!lastState.topAsk.price.isEqualTo(topAsk.price)) { return true }
-        if (!lastState.topAsk.size.isEqualTo(topAsk.size)) { return true }
+        if (!lastState.topBid.price.isEqualTo(topBid.price)) { this.lastState[productId] = { topBid, topAsk }; return true }
+        if (!lastState.topBid.size.isEqualTo(topBid.size)) { this.lastState[productId] = { topBid, topAsk }; return true }
+        if (!lastState.topAsk.price.isEqualTo(topAsk.price)) { this.lastState[productId] = { topBid, topAsk }; return true }
+        if (!lastState.topAsk.size.isEqualTo(topAsk.size)) { this.lastState[productId] = { topBid, topAsk }; return true }
 
         return false
     }

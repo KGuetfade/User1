@@ -7,12 +7,17 @@ function timeout(ms) {
 }
 
 program.version('0.0.1')
-    .option('-s, --server', 'Whether to run with express server')
+    .option('-d, --data', 'Collect data')
+    .option('-t, --trade', 'Trading mode')
     .parse(process.argv)
 
 const main = async () => {
     await Database.connect()
-    const app = new App()
+
+    const { data, trade } = program
+    const products = ['BTC-EUR', 'ETH-EUR', 'ETH-BTC']
+
+    const app = new App(products, data, trade)
     app.start()
 }
 

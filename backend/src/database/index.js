@@ -2,6 +2,9 @@ const mongoose = require('mongoose')
 const config = require('../configuration')
 
 module.exports = {
+    /**
+     * Opens a connection with MongoDb database.
+     */
     connect: async () => {
         const databaseUrl = config.get('DATABASE_URL')
         try {
