@@ -1,4 +1,4 @@
-const ArbitrageModel = require('../models/arbirage')
+const ArbitrageModel = require('../models/arbitrage')
 
 class DataCollector {
     constructor() {
