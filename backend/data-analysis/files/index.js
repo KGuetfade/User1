@@ -1,16 +1,12 @@
 let data = ""
 
 fetch('http://localhost:3000/data')
-    /* .then(response => {
+    .then(response => {
         const reader = response.body.getReader()
         reader.read()
               .then(({ done, value }) => {
-                    data = data.concat(value)
-
-                    if (done) {
-                        data = JSON.stringify(data)
-                        console.log(data)
-                    }
+                    let v = String.fromCharCode.apply(null, new Uint16Array(value))
+                    data = data.concat(v)
+                    if (done) {console.log('done');console.log(data)}
               })
-    }) */
-    .then(res => console.log(res.body))
+    })
