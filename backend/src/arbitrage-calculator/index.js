@@ -132,7 +132,8 @@ class ArbitrageCalculator {
         const useThird = this.checkCycle(steps, 2)
 
         if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird || !(useFirst || useSecond || useThird)) {
-            throw new Error('Something wrong with size calculation!')
+            //throw new Error('Something wrong with size calculation!')
+            console.log(`${new Date()} Something wrong with size calculation!`)
         }
 
         const startIndex = useFirst ? 0 : useSecond ? 1 : 2

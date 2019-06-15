@@ -3,6 +3,13 @@ const ArbitrageModel = require('../models/arbitrage')
 class DataCollector {
     constructor() {
         this.previousTen = []
+        
+        //
+        this.updates = 0
+        setInterval(() => {
+            console.log(`${new Date()} Documents saved to database: ${this.updates}`)
+            this.updates = 0
+        }, 1000 * 60 * 20)
     }
     
     /**
@@ -32,6 +39,7 @@ class DataCollector {
      * Save's arbitrage opportunity data to database.
      */
     saveToDatabase(data) {
+        this.updates += 1
         data.time = new Date()
         ArbitrageModel
             .create(data)
