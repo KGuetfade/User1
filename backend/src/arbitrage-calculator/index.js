@@ -64,7 +64,6 @@ class ArbitrageCalculator {
 
     adjustSizes(steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
-        next = BigNumber(next)
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
             const step = steps[index]
@@ -131,9 +130,11 @@ class ArbitrageCalculator {
         const useSecond = this.checkCycle(steps, 1)
         const useThird = this.checkCycle(steps, 2)
 
-        if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird || !(useFirst || useSecond || useThird)) {
+        if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird) {
             //throw new Error('Something wrong with size calculation!')
-            console.log(`${new Date()} Something wrong with size calculation!`)
+            console.log(`${new Date()} more than one sizes!`)
+        } else if (!(useFirst || useSecond || useThird)) {
+            console.log(`${new Date()} no sizes!`)
         }
 
         const startIndex = useFirst ? 0 : useSecond ? 1 : 2

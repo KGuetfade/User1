@@ -6,60 +6,56 @@ class OrderbookFeed extends EventEmitter{
     constructor(products) {
         super()
         this.products = products
-        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);    
-        this.lastState = {}    
-        
-        this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
+        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);     
+        this.heartbeats = {}
+
+        this.syncOrderbooks.on('message', this.updateHeartBeats.bind(this))
+        this.syncOrderbooks.on('message', this.update.bind(this))
         this.syncOrderbooks.on('error', err => console.log(err))
         this.syncOrderbooks.on('close', () => {
-            console.log('Socket connection closed.\nAttempting to reconnect.')
+            console.log('Socket connection closed.\nAttempting to reconnect...')
             this.syncOrderbooks.connect()
         })        
+
+        setInterval(() => {
+            this.products.forEach(this.checkHeartBeats.bind(this))
+        }, 1000 * 60 * 5);        
     }
 
     /**
-     * Currently just checks if anything has changed across
-     * all orderbooks.
+     * Checks if orderbooks are not empty, if so it emits
+     * and update event.
      */
-    checkForUpdates(data) {
-        for (let i = 0; i < this.products.length; i++) {
-            const product = this.products[i]
-            const book = this.syncOrderbooks.books[product].state()
-            const hasChanged = this.hasChanged(product, book)
-            if (hasChanged) { 
-                this.emit('update', this.syncOrderbooks)
-                break
-            }
-        }   
+    update(data) {
+        this.products.forEach(p => {
+            const bids = this.syncOrderbooks.books[p].state()['bids']
+            const asks = this.syncOrderbooks.books[p].state()['asks']
+
+            if (bids.length === 0 || asks.length === 0) { return }
+        })
+        this.emit('update', this.syncOrderbooks.books)
     }
 
     /**
-     * Checks if the top bids and asks of the orderbook have changed.
+     * Checks whether the heartbeat channel is still alive.
+     * If last heatbeat was more than 15 seconds ago, it
+     * gets logged to console.
      */
-    hasChanged(productId, book) {
-        const lastState = this.lastState[productId]
-        const topBid = book['bids'][0]
-        const topAsk = book['asks'][0]    
+    checkHeartBeats(product_id) {
+        const lastBeat = this.heartbeats[product_id]
+        const now = new Date().getTime()
+        const last = new Date(lastBeat).getTime()
+        if (now - last > 1000 * 15) { console.log(`Heartbeat stopped for ${product_id}`) }
+    }
 
-        if (topBid === undefined || topAsk === undefined) { return false }
-        if (lastState === undefined) { 
-            this.lastState[productId] = { topBid, topAsk }
-            return false
+    /**
+     * Updates the heartbeats for each product.
+     */
+    updateHeartBeats(data) {
+        if (data.type === 'heartbeat') {
+            const { product_id, time } = data
+            this.heartbeats[product_id] = time
         }
-
-        if (!lastState.topBid.price.isEqualTo(topBid.price)) { this.lastState[productId] = { topBid, topAsk }; return true }
-        if (!lastState.topBid.size.isEqualTo(topBid.size)) { this.lastState[productId] = { topBid, topAsk }; return true }
-        if (!lastState.topAsk.price.isEqualTo(topAsk.price)) { this.lastState[productId] = { topBid, topAsk }; return true }
-        if (!lastState.topAsk.size.isEqualTo(topAsk.size)) { this.lastState[productId] = { topBid, topAsk }; return true }
-
-        return false
-    }
-
-    clean() {
-        this.syncOrderbooks.removeAllListeners()
-        this.syncOrderbooks.socket.removeAllListeners()
-        this.syncOrderbooks.socket = null
-        this.syncOrderbooks = null
     }
 }
 

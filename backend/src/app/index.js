@@ -26,7 +26,7 @@ class App {
         this.calculator.update(
             this.products.map((product, index) => ({
                 id: product, 
-                orderbook: orderbooks.books[this.products[index]].state()
+                orderbook: orderbooks[this.products[index]].state()
             }))
         )
 
