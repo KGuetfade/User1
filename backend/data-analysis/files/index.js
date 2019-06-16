@@ -1,4 +1,4 @@
-const btcprice = 7503.77
+const btcprice = 8200.99
 const fees = [.75, .6, .54, .45, .3, .24, .21, .18, .15]
 const volumeIntervals = [100, 200, 500, 750, 1000, 2000, 5000, 10000, 20000]
 
@@ -60,6 +60,18 @@ const createCharts = data => {
         }
     })
 
+    const amountGraph = $('#amountGraph')
+    const amountChart = new Chart(amountGraph, {
+        type: 'bar',
+        data : {
+            labels: [-100, 0, .3, .5, .75, 1, 1.5, 2, 5, 10],
+            datasets: [{
+                label: 'amount trades above percentage',
+                data: [-100, 0, .3, .5, .75, 1, 1.5, 2, 5, 10].map(p => getCountAbovePercentage(p, data))
+            }]            
+        }
+    })
+
     
 }
 
@@ -104,4 +116,9 @@ const getProfitPerVolume = (percentage, data, volume) => {
         } else { return acc }        
     }, 0)
     return profit
+}
+
+const getCountAbovePercentage = (percentage, data) => {
+    const above = data.filter(d => d.percentage >= percentage)
+    return above.length
 }
