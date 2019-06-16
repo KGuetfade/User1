@@ -1,6 +1,7 @@
 const program = require('commander')
 const App = require('./src/app')
 const Database = require('./src/database')
+const memwatch = require('node-memwatch')
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -19,6 +20,8 @@ const main = async () => {
 
     const app = new App(products, data, trade)
     app.start()
+
+    memwatch.on('leak', info => console.log(info))
 }
 
 try {
