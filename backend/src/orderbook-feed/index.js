@@ -8,12 +8,6 @@ class OrderbookFeed extends EventEmitter{
         this.products = products
         this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);        
         
-        this.syncOrderbooks.on('sync', productID => { 
-            console.log(`Started orderbook synchronization for ${productID}`) 
-            this.lastState = {}
-            this.synced = false
-        })
-        this.syncOrderbooks.on('synced', productID => { console.log(`Orderbook synchronized for ${productID}`); this.synced = true })
         this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
         this.syncOrderbooks.on('error', err => console.log(err))
         this.syncOrderbooks.on('close', () => {
@@ -27,17 +21,15 @@ class OrderbookFeed extends EventEmitter{
      * all orderbooks.
      */
     checkForUpdates(data) {
-        if (this.synced) {
-            for (let i = 0; i < this.products.length; i++) {
-                const product = this.products[i]
-                const book = this.syncOrderbooks.books[product].state()
-                const hasChanged = this.hasChanged(product, book)
-                if (hasChanged) { 
-                    this.emit('update', this.syncOrderbooks)
-                    break
-                }
+        for (let i = 0; i < this.products.length; i++) {
+            const product = this.products[i]
+            const book = this.syncOrderbooks.books[product].state()
+            const hasChanged = this.hasChanged(product, book)
+            if (hasChanged) { 
+                this.emit('update', this.syncOrderbooks)
+                break
             }
-        }        
+        }   
     }
 
     /**
