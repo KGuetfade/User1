@@ -6,7 +6,8 @@ class OrderbookFeed extends EventEmitter{
     constructor(products) {
         super()
         this.products = products
-        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);        
+        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);    
+        this.lastState = {}    
         
         this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
         this.syncOrderbooks.on('error', err => console.log(err))
