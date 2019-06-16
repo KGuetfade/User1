@@ -11,7 +11,7 @@ class ArbitrageCalculator {
     }
 
     update(products) {
-        this.products = products
+        this.products = products 
     }
 
     buy(book, amountYouHave) {

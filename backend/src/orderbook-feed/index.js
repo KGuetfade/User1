@@ -1,6 +1,5 @@
 const CoinbasePro = require('coinbase-pro')
 const EventEmitter = require('events')
-const BigNumber = require('bignumber.js')
 
 class OrderbookFeed extends EventEmitter{
     constructor(products) {
@@ -14,6 +13,7 @@ class OrderbookFeed extends EventEmitter{
         this.syncOrderbooks.on('error', err => console.log(err))
         this.syncOrderbooks.on('close', () => {
             console.log('Socket connection closed.\nAttempting to reconnect...')
+            this.initialized = false
             this.syncOrderbooks.connect()
         })        
 
@@ -27,13 +27,19 @@ class OrderbookFeed extends EventEmitter{
      * and update event.
      */
     update(data) {
-        this.products.forEach(p => {
-            const bids = this.syncOrderbooks.books[p].state()['bids']
-            const asks = this.syncOrderbooks.books[p].state()['asks']
-
-            if (bids.length === 0 || asks.length === 0) { return }
-        })
-        this.emit('update', this.syncOrderbooks.books)
+        if (this.initialized) {
+            this.emit('update', this.syncOrderbooks.books)
+        } else {
+            for (let i = 0; i < this.products.length; i++) {
+                const p = this.products[i]
+    
+                const bids = this.syncOrderbooks.books[p].state()['bids']
+                const asks = this.syncOrderbooks.books[p].state()['asks']
+    
+                if (bids.length === 0 || asks.length === 0) { return }
+            }
+            this.initialized = true
+        }
     }
 
     /**
@@ -54,7 +60,7 @@ class OrderbookFeed extends EventEmitter{
     updateHeartBeats(data) {
         if (data.type === 'heartbeat') {
             const { product_id, time } = data
-            this.heartbeats[product_id] = time
+            this.heartbeats[product_id] = time      
         }
     }
 }

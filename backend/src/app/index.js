@@ -1,5 +1,6 @@
 const OrderbookFeed = require('../orderbook-feed')
 const ArbitrageCalculator = require('../arbitrage-calculator')
+const Trader = require('../trader')
 const DataCollector = require('../data-collector')
 
 class App {
@@ -14,15 +15,18 @@ class App {
         if (this.dataMode) {
             console.log('App started in data-collecting mode')
             this.dataCollector = new DataCollector()
-        } else if (this.tradeMode) { console.log('App started in trade mode') }
+        } else if (this.tradeMode) { 
+            console.log('App started in trade mode') 
+            this.trader = new Trader(this.products, .75)
+        }
         else { console.log('App started in idle mode') }
     }
 
     start() {
-        this.orderbookFeed.on('update', this.process.bind(this))
+        this.orderbookFeed.on('update', this.run.bind(this))
     }
 
-    process(orderbooks) {
+    run(orderbooks) {
         this.calculator.update(
             this.products.map((product, index) => ({
                 id: product, 
@@ -33,7 +37,8 @@ class App {
         const result = this.calculator.calculatePercentage()                
         this.calculator.calculateSizes(result.steps) 
 
-        if (this.dataMode) { this.dataCollector.collect(result) }        
+        if (this.dataMode) { this.dataCollector.collect(result) }   
+        if (this.tradeMode) { this.trader.process(result) }     
     }
 
     log(result) {
