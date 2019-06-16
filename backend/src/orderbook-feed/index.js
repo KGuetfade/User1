@@ -8,26 +8,16 @@ class OrderbookFeed extends EventEmitter{
         this.products = products
         this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);
         this.lastState = {}
+        this.synced = false
 
-        //
-        this.messages = 0
-        setInterval(() => {
-            console.log(`${new Date()} Orderbook messages: ${this.messages}`)
-            this.messages = 0
-        }, 1000 * 60 * 20)
-
-
-        this.syncOrderbooks.on('message', data => {
-            this.messages += 1
-            this.checkForUpdates(data)
-        })
-
-        //
-        this.updates = 0
-        setInterval(() => {
-            console.log(`${new Date()} Orderbook updates: ${this.updates}`)
-            this.updates = 0
-        }, 1000 * 60 * 20)
+        this.syncOrderbooks.on('message', this.checkForUpdates.bind(this))
+        this.syncOrderbooks.on('sync', productID => { console.log(`Started orderbook synchronization for ${productID}`); this.synced = false })
+        this.syncOrderbooks.on('synced', productID => { console.log(`Orderbook synchronized for ${productID}`); this.synced = true })
+        this.syncOrderbooks.on('error', err => console.log(err))
+        this.syncOrderbooks.on('close', () => {
+            console.log('Socket connection closed.\nAttempting to reconnect.')
+            this.syncOrderbooks.connect()
+        })        
     }
 
     /**
@@ -39,8 +29,7 @@ class OrderbookFeed extends EventEmitter{
             const product = this.products[i]
             const book = this.syncOrderbooks.books[product].state()
             const hasChanged = this.hasChanged(product, book)
-            if (hasChanged) { 
-                this.updates += 1
+            if (hasChanged && this.synced) { 
                 this.emit('update', this.syncOrderbooks)
                 break
             }
