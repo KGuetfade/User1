@@ -8,18 +8,18 @@ class App {
         this.tradeMode = tradeMode
         this.products = products
 
-        this.orderbooks = new OrderbookFeed(this.products)
+        this.orderbookFeed = new OrderbookFeed(this.products)
         this.calculator = new ArbitrageCalculator(this.products)   
         
         if (this.dataMode) {
             console.log('App started in data-collecting mode')
-            this.datacollector = new DataCollector()
+            this.dataCollector = new DataCollector()
         } else if (this.tradeMode) { console.log('App started in trade mode') }
         else { console.log('App started in idle mode') }
     }
 
     start() {
-        this.orderbooks.on('update', this.process.bind(this))
+        this.orderbookFeed.on('update', this.process.bind(this))
     }
 
     process(orderbooks) {
@@ -33,7 +33,7 @@ class App {
         const result = this.calculator.calculatePercentage()                
         this.calculator.calculateSizes(result.steps) 
 
-        if (this.dataMode) { this.datacollector.collect(result) }        
+        if (this.dataMode) { this.dataCollector.collect(result) }        
     }
 
     log(result) {
