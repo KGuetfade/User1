@@ -1,18 +1,6 @@
 const BigNumber = require('bignumber.js')
 
-/**
- * Class for calculating arbitrage values.
- * Takes in array of products containing and id and an orderbook.
- * Takes in buy and sell method for handling buying and selling on an orderbook.
- */
 class ArbitrageCalculator {
-    constructor(products) {
-        this.products = products
-    }
-
-    update(products) {
-        this.products = products 
-    }
 
     buy(book, amountYouHave) {
         const asks = book['asks']
@@ -43,12 +31,12 @@ class ArbitrageCalculator {
         return BigNumber(size)
     }
 
-    checkCycle(steps, startIndex) {
+    checkCycle(products, steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
             const step = steps[index]
-            const { orderbook } = this.products[step.index]
+            const { orderbook } = products[step.index]
             if (step.type === 'buy') {                
                 const { funds } = step
                 if (next.isGreaterThan(funds)) { return false }
@@ -62,12 +50,12 @@ class ArbitrageCalculator {
         return true
     }
 
-    adjustSizes(steps, startIndex) {
+    adjustSizes(products, steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
             const step = steps[index]
-            const { orderbook } = this.products[step.index]
+            const { orderbook } = products[step.index]
             if (step.type === 'buy') {                
                 step.funds = next
                 next = this.buy(orderbook, next)
@@ -79,26 +67,38 @@ class ArbitrageCalculator {
     }
 
     /**
+     * Function that takes in products and caculates
+     * percentage and sizes. 
+     * Products is array of objects. Each object has an id
+     * and its corresponding orderbook.
+     */
+    calculate(products) {
+        const calc = this.calculatePercentage(products)
+        this.calculateSizes(products, calc.steps)
+        return calc
+    }
+
+    /**
      * Function to calculate max arbitrage profit percentage.
      * Returns max percentage and steps to follow.
      */
-    calculatePercentage() {
-        const { id: id1 } = this.products[0]
-        const { id: id2 } = this.products[1]
-        const { id: id3 } = this.products[2]
+    calculatePercentage(products) {
+        const { id: id1 } = products[0]
+        const { id: id2 } = products[1]
+        const { id: id3 } = products[2]
         const ids = [id1, id2, id3]
 
         const buySteps = this.calculateSteps(ids, 'buy')
         const sellSteps = this.calculateSteps(ids, 'sell')
 
         const buyResult = buySteps.reduce((acc, step) => {
-            const { orderbook } = this.products[step.index]
+            const { orderbook } = products[step.index]
             if (step.type === 'buy') { return this.buy(orderbook, acc) }
             else { return this.sell(orderbook, acc) }
         }, BigNumber(1))
 
         const sellResult = sellSteps.reduce((acc, step) => {
-            const { orderbook } = this.products[step.index]
+            const { orderbook } = products[step.index]
             if (step.type === 'buy') { return this.buy(orderbook, acc) }
             else { return this.sell(orderbook, acc) }
         }, BigNumber(1))
@@ -117,18 +117,18 @@ class ArbitrageCalculator {
      * Takes in steps to trade on.
      * Returns steps with sizes / funds to execute trade.
      */
-    calculateSizes(steps) {
+    calculateSizes(products, steps) {
         steps.forEach(step => {
             if (step.type === 'buy') {
-                step.funds = this.maxBuy(this.products[step.index].orderbook)
+                step.funds = this.maxBuy(products[step.index].orderbook)
             } else {
-                step.size = this.maxSell(this.products[step.index].orderbook)
+                step.size = this.maxSell(products[step.index].orderbook)
             }
         })
         
-        const useFirst = this.checkCycle(steps, 0)
-        const useSecond = this.checkCycle(steps, 1)
-        const useThird = this.checkCycle(steps, 2)
+        const useFirst = this.checkCycle(products, steps, 0)
+        const useSecond = this.checkCycle(products, steps, 1)
+        const useThird = this.checkCycle(products, steps, 2)
 
         if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird) {
             //throw new Error('Something wrong with size calculation!')
@@ -139,7 +139,7 @@ class ArbitrageCalculator {
 
         const startIndex = useFirst ? 0 : useSecond ? 1 : 2
 
-        this.adjustSizes(steps, startIndex)
+        this.adjustSizes(products, steps, startIndex)
     }
 
     /**

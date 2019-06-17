@@ -14,7 +14,7 @@ program.version('0.0.1')
     .option('-t, --trade', 'Trading mode')
     .parse(process.argv)
 
-/* const main = async () => {
+const main = async () => {
     await Database.connect()
 
     const { data, trade } = program
@@ -28,9 +28,9 @@ program.version('0.0.1')
 
 try {
     main()
-} catch(error) { console.log(error) } */
+} catch(error) { console.log(error) }
 
-const publicClient = new CoinbasePro.PublicClient();
+/* const publicClient = new CoinbasePro.PublicClient();
 
 publicClient
   .getProducts()
@@ -39,4 +39,4 @@ publicClient
   })
   .catch(error => {
     console.log(error)
-  });
+  }); */
