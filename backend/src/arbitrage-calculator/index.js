@@ -67,6 +67,17 @@ class ArbitrageCalculator {
     }
 
     /**
+     * If there are no common trade sizes,
+     * delete the size and funds fields. 
+     */
+    deleteSizes(steps) {
+        steps.forEach(step => { 
+            delete step.funds 
+            delete step.size 
+        })
+    }
+
+    /**
      * Function that takes in products and caculates
      * percentage and sizes. 
      * Products is array of objects. Each object has an id
@@ -131,10 +142,11 @@ class ArbitrageCalculator {
         const useThird = this.checkCycle(products, steps, 2)
 
         if  (useFirst && useSecond || useFirst && useThird || useSecond && useThird) {
-            //throw new Error('Something wrong with size calculation!')
-            console.log(`${new Date()} more than one sizes!`)
+            this.deleteSizes(steps)
+            return
         } else if (!(useFirst || useSecond || useThird)) {
-            console.log(`${new Date()} no sizes!`)
+            this.deleteSizes(steps)
+            return
         }
 
         const startIndex = useFirst ? 0 : useSecond ? 1 : 2

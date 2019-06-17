@@ -6,16 +6,17 @@ class DataCollector {
     }
     
     /**
-     * Takes in data of calculated arbitrage opportunity.
-     * Save's it to database, if it's percentage hasn't occured within
-     * the last 10 percentage changes.
+     * Takes in orderbooks. Calulates percentage.
+     * If percentage already saved in last ten saves,
+     * it will return. Else it will calulate profit and
+     * save the data to database.
      */
-    collect(data) {
+    process(orderbooks) {
         const { percentage } = data
 
         for (let i = 0; i < this.previousTen.length; i++) {
             const per = this.previousTen[i]
-            if (per.isEqualTo(percentage)) { return }
+            if (per.toFixed(9) === percentage.toFixed(9)) { return }
         }
 
         if (this.previousTen.length < 10) {

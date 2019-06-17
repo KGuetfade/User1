@@ -12,12 +12,12 @@ class App {
         this.orderbookFeed = new OrderbookFeed(this.products)
         this.calculator = new ArbitrageCalculator()   
         
-        if (this.dataMode) {
+        if (this.dataMode) {            
+            this.dataCollector = new DataCollector(this.calculator)
             console.log('App started in data-collecting mode')
-            this.dataCollector = new DataCollector()
-        } else if (this.tradeMode) { 
+        } else if (this.tradeMode) {             
+            this.trader = new Trader(this.products, .75, this.calculator)
             console.log('App started in trade mode') 
-            this.trader = new Trader(this.products, .75)
         }
         else { console.log('App started in idle mode') }
     }
@@ -27,11 +27,16 @@ class App {
     }
 
     run(orderbooks) {
-        const result = this.calculator.calculate(this.products.map(product => ({ id: product, orderbook: orderbooks[product].state() })))                
-
-        if (this.dataMode) { this.dataCollector.collect(result) }   
-        else if (this.tradeMode) { this.trader.process(result) }     
-        else { this.log(result, orderbooks) }
+        if (this.dataMode) { 
+            this.dataCollector.process(orderbooks) 
+        }   
+        else if (this.tradeMode) { 
+            this.trader.process(orderbooks) 
+        }     
+        else { 
+            const result = this.calculator.calculate(this.products.map(product => ({ id: product, orderbook: orderbooks[product].state() })))
+            this.log(result, orderbooks) 
+        }
     }
 
     log(result, orderbooks) {
