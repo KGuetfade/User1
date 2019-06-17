@@ -3,25 +3,34 @@ const TradeExecutor = require('../trade-executor')
 const TradeVerifier = require('../trade-verifier')
 
 class Trader {
-    constructor(products, fee, calculator) {
+    constructor(products, calculator, fee) {
         this.products = products
-        this.fee = fee
         this.calculator = calculator
-        this.firewall = new TradeFirewall()
+        this.fee = fee
+        
+        this.firewall = new TradeFirewall(this.products)
         this.executor = new TradeExecutor()
         this.verifier = new TradeVerifier()
     }
 
     /**
-     * Takes in the orderbooks. Calculates percentage,
-     * if firewall rejects percentage, it returns. Else
-     * if calculates sizes. Again if firewall rejects, it returns.
-     * If executor is locked, return, else executor executes trade
-     * and locks itself. When trade is done, verifier, checks if trade went
-     * succesfully and persists data to database.
+     * Takes in the orderbooks. Firewall checks data.
+     * If it passes, executor executes trade. Finally,
+     * verifier checks and persists the trade.
      */
     process(orderbooks) {
+        const products = this.calculator.getInputFromOrderbooks(orderbooks)
+        const { percentage, steps } = this.calculator.calculatePercentage(products)
 
+        if (!this.firewall.checkPercentage(percentage)) { return }
+
+        this.calculator.calculateSizes(products, steps)
+
+        if (!this.firewall.checkSizes(steps)) { return }
+        if (!this.firewall.checkLocked()) { return }
+
+        this.executor.execute(result)
+        this.verifier.verify()
     }
 }
 

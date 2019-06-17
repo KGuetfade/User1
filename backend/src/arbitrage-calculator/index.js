@@ -31,37 +31,47 @@ class ArbitrageCalculator {
         return BigNumber(size)
     }
 
+    /**
+     * Function to check if complete arbitrage
+     * cycle can be done with size or funds of given step.
+     */
     checkCycle(products, steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
             const step = steps[index]
             const { orderbook } = products[step.index]
-            if (step.type === 'buy') {                
-                const { funds } = step
-                if (next.isGreaterThan(funds)) { return false }
+            if (step.funds) {                
+                if (next.isGreaterThan(step.funds)) { return false }
                 next = this.buy(orderbook, next)
-            } else {
-                const { size } = step
-                if (next.isGreaterThan(size)) { return false }
+            } else if (step.size) {
+                if (next.isGreaterThan(step.size)) { return false }
                 next = this.sell(orderbook, next)
+            } else {
+                throw new Error('Something wrong with checkcycle')
             }
         }
         return true
     }
 
+    /**
+     * Function to adjust sizes and funds of
+     * all steps, according to one of the steps.
+     */
     adjustSizes(products, steps, startIndex) {
         let next = steps[startIndex].type === 'buy' ? steps[startIndex].funds : steps[startIndex].size
         for (let i = 0; i < 3; i++) {
             const index = (i + startIndex) % 3
             const step = steps[index]
             const { orderbook } = products[step.index]
-            if (step.type === 'buy') {                
+            if (step.funds) {                
                 step.funds = next
                 next = this.buy(orderbook, next)
-            } else {
+            } else if (step.size) {
                 step.size = next
                 next = this.sell(orderbook, next)
+            } else {
+                throw new Error('Something wrong with adjustSizes')
             }
         }
     }
@@ -251,6 +261,19 @@ class ArbitrageCalculator {
         } else { throw new Error("please provide correct type") }
 
         return steps
+    }
+
+    /**
+     * Function to get input required for calculate percentage and
+     * calculate size methods. Takes in orderbook.books from coinbase
+     * pro api and returns array with object. Objects contain id of orderbook
+     * and the state of the orderbook.
+     */
+    getInputFromOrderbooks(orderbooks) {
+        return Object.keys(orderbooks).map(product => ({ 
+                    id: product, 
+                    orderbook: orderbooks[product].state() 
+               }))
     }
 }
 

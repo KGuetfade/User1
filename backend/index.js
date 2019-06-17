@@ -3,7 +3,7 @@ const App = require('./src/app')
 const Database = require('./src/database')
 const memwatch = require('node-memwatch')
 
-const CoinbasePro = require('coinbase-pro')
+const TradeFirewall = require('./src/trade-firewall')
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -14,7 +14,7 @@ program.version('0.0.1')
     .option('-t, --trade', 'Trading mode')
     .parse(process.argv)
 
-const main = async () => {
+/* const main = async () => {
     await Database.connect()
 
     const { data, trade } = program
@@ -28,15 +28,6 @@ const main = async () => {
 
 try {
     main()
-} catch(error) { console.log(error) }
+} catch(error) { console.log(error) } */
 
-/* const publicClient = new CoinbasePro.PublicClient();
-
-publicClient
-  .getProducts()
-  .then(data => {
-    console.log(data)
-  })
-  .catch(error => {
-    console.log(error)
-  }); */
+const firewall = new TradeFirewall(['BTC-EUR', 'ETH-EUR', 'ETH-BTC'])

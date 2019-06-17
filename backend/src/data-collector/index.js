@@ -1,8 +1,9 @@
 const ArbitrageModel = require('../models/arbitrage')
 
 class DataCollector {
-    constructor() {
+    constructor(calculator) {
         this.previousTen = []
+        this.calculator = calculator
     }
     
     /**
@@ -12,11 +13,12 @@ class DataCollector {
      * save the data to database.
      */
     process(orderbooks) {
-        const { percentage } = data
+        const products = this.calculator.getInputFromOrderbooks(orderbooks)
+        const { percentage, steps } = this.calculator.calculatePercentage(products)
 
         for (let i = 0; i < this.previousTen.length; i++) {
             const per = this.previousTen[i]
-            if (per.toFixed(9) === percentage.toFixed(9)) { return }
+            if (per.isEqualTo(percentage)) { return }
         }
 
         if (this.previousTen.length < 10) {
@@ -26,7 +28,8 @@ class DataCollector {
             this.previousTen.push(percentage)
         }
         
-        this.saveToDatabase(data)
+        this.calculator.calculateSizes(products, steps)
+        this.saveToDatabase(result)
     }
 
     /**
