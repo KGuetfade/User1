@@ -1,40 +1,19 @@
 const BigNumber = require('bignumber.js')
 const CoinbasePro = require('coinbase-pro')
-const config = require('../configuration')
-
-const key = config.get('COINBASE_PRO_API_KEY')
-const secret = config.get('COINBASE_PRO_API_SECRET')
-const passphrase = config.get('COINBASE_PRO_API_PASSPHRASE')
-const apiURI = config.get('COINBASE_PRO_API_URL')
 
 class TradeFirewall {
     constructor(products) {
-        this.products = products
-        this.authClient = new CoinbasePro.AuthenticatedClient(key, secret, passphrase, apiURI)
+        this.products = products        
 
         /**
-         * Creates two class fields. 
-         * Account: object with currency as key and account 
-         * details like balance as data.
-         * 
          * Bases: object with currency pair as key and
          * general information on pair as data.
          */
-        Promise.all([this.authClient.getAccounts(), this.authClient.getProducts()])
-            .then(values => {
-                this.accounts = values[0].reduce((acc, account) => {
-                    const { currency } = account
-                    this.products.forEach(product => {
-                        if (product.split('-')[0] === currency || product.split('-')[1] === currency) {
-                            if (!acc[currency]) {
-                                acc[currency] = Object.assign({}, account)
-                            }
-                        }
-                    })
-                    return acc
-                }, {})
-
-                this.bases = values[1].reduce((acc, product) => {
+        
+        const client = new CoinbasePro.PublicClient()
+        client.getProducts()
+            .then(data => {
+                this.bases = data.reduce((acc, product) => {
                     if (this.products.includes(product.id)) {
                         acc[product.id] = product
                     }
@@ -59,29 +38,50 @@ class TradeFirewall {
      * in the steps, based on minimum trading sizes, wallet status
      * and whether steps have funds or sizes
      */
-    checkSizes(steps) {
-        if (!this.accounts && !this.bases) { return false }
+    checkSizes(steps, wallet) {
         if (!steps[0].funds && !steps[0].size) { return false }
         if (!this.checkSizeLimits(steps)) { return false }
-        if (!this.checkBalances(steps)) { return false }
+        if (!this.checkBalances(steps, wallet)) { return false }
         
         return true
     }
 
     /**
-     * Checks whether executor can execute trade.
+     * Checks whether executor is unlocked.
      */
-    checkLocked() {
+    checkUnlocked(state) {
+        const { status } = state
+
+        if (status === 'locked') { return false }
+        else if (status === 'unlocked') { return true }
+        else { throw new Error('something wrong with checkunlocked') }
     }
 
     /**
      * Takes in steps and checks if account for each currency has 
      * enough balance to execute trade. 
      */
-    checkBalances(steps) {
-        if (steps[0].funds.isGreaterThan(100) || steps[0].size.times(8310).isGreaterThan(100)) {
-            return false
+    checkBalances(steps, wallet) {
+        if (!wallet.accounts) { return false }
+
+        for (let i = 0; i < 3; i++) {
+            const { id, funds, size } = steps[i]
+
+            if (funds) {
+                const currency = id.split('-')[1]
+                const { balance } = wallet.accounts[currency]
+                if (funds.isGreaterThanOrEqualTo(BigNumber(balance))) { return false }
+
+            } else if (size) {
+                const currency = id.split('-')[0]
+                const { balance } = wallet.accounts[currency]
+                if (size.isGreaterThanOrEqualTo(BigNumber(balance))) { return false }
+
+            } else {
+                throw new Error('something wrong with steps')
+            }
         }
+
         return true
     }
 
@@ -91,6 +91,8 @@ class TradeFirewall {
      * execute trades.
      */
     checkSizeLimits(steps) {
+        if (!this.bases) { return false }
+
         for (let i = 0; i < 3; i++) {
             const { id, funds, size } = steps[i]
             const { 
@@ -111,7 +113,7 @@ class TradeFirewall {
                         return false
                     }
             } else {
-                throw new Error('something wrong with checkSizeLimits')
+                throw new Error('something wrong with steps')
             }
         }
         return true

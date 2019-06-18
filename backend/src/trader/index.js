@@ -1,6 +1,14 @@
 const TradeFirewall = require('../trade-firewall')
 const TradeExecutor = require('../trade-executor')
 const TradeVerifier = require('../trade-verifier')
+const Wallet = require('../models/wallet')
+const config = require('../configuration')
+
+const key = config.get('COINBASE_PRO_API_KEY')
+const secret = config.get('COINBASE_PRO_API_SECRET')
+const passphrase = config.get('COINBASE_PRO_API_PASSPHRASE')
+
+const auth = { key, secret, passphrase }
 
 class Trader {
     constructor(products, calculator, fee) {
@@ -10,7 +18,8 @@ class Trader {
         
         this.firewall = new TradeFirewall(this.products)
         this.executor = new TradeExecutor()
-        this.verifier = new TradeVerifier()
+        this.verifier = new TradeVerifier(this.products, auth=auth)
+        this.wallet = new Wallet(this.products)
     }
 
     /**
@@ -22,15 +31,16 @@ class Trader {
         const products = this.calculator.getInputFromOrderbooks(orderbooks)
         const { percentage, steps } = this.calculator.calculatePercentage(products)
 
-        if (!this.firewall.checkPercentage(percentage)) { return }
+        if (!this.firewall.checkPercentage(percentage, this.fee)) { return }
 
         this.calculator.calculateSizes(products, steps)
+        if (!this.firewall.checkSizes(steps, this.wallet)) { return }
+        if (!this.firewall.checkUnlocked(this.executor.state)) { return }
 
-        if (!this.firewall.checkSizes(steps)) { return }
-        if (!this.firewall.checkLocked()) { return }
-
-        this.executor.execute(result)
-        this.verifier.verify()
+        this.executor.lock()
+        const trades = this.executor.createTrades(steps)
+        this.verifier.emit('verify', trades)
+        this.executor.execute(trades)
     }
 }
 

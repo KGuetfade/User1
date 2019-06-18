@@ -4,6 +4,8 @@ const Database = require('./src/database')
 const memwatch = require('node-memwatch')
 
 const TradeFirewall = require('./src/trade-firewall')
+const Wallet = require('./src/models/wallet')
+const { Coinbase } = require('./src/socket-feed')
 
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -30,4 +32,5 @@ try {
     main()
 } catch(error) { console.log(error) } */
 
-const firewall = new TradeFirewall(['BTC-EUR', 'ETH-EUR', 'ETH-BTC'])
+/* const firewall = new TradeFirewall(['BTC-EUR', 'ETH-EUR', 'ETH-BTC'])
+const wallet = new Wallet(['BTC-EUR', 'ETH-EUR', 'ETH-BTC']) */
