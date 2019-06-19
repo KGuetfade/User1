@@ -41,10 +41,9 @@ class Trade {
         else if (!matched || !done) {
             if (!matched && data.type === 'match') {
                 if (data.product_id === product_id) {
-                    if (data.order_id === this.order_id) {
+                    if (data.taker_order_id === this.order_id) {
                         this.stages.matched = true
-                        const { price, size } = data
-                        this.filled = { price, size }
+                        this.match = data
                     }
                 }
             }

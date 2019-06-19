@@ -16,7 +16,7 @@ class App {
             this.dataCollector = new DataCollector(this.calculator)
             console.log('\nApp started in data-collecting mode.')
         } else if (this.tradeMode) {             
-            this.trader = new Trader(this.products, this.calculator, .75)
+            this.trader = new Trader(this.products, this.calculator, .75, this.orderbookFeed.syncOrderbooks)
             console.log('\nApp started in trade mode.') 
         }
         else { console.log('\nApp started in idle mode.') }
