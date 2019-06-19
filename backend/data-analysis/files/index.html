@@ -14,22 +14,30 @@
     </head>
     <body>
         <div class="container">
-            <div class="d-flex justify-content-center mt-5">
-                <div class="spinner-border" role="status" id="spinner">
-                    <span class="sr-only">Loading...</span>
+            
+            <div id="loading" class="text-center mt-5">
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status" id="spinner">
+                        <span class="sr-only">Loading...</span>
+                    </div>
                 </div>
+                <h2 class="mt-2">Please wait while we load your data</h2>
             </div>
-            <canvas id="profitBar">
-            </canvas>
-            <hr />
-            <canvas id="volumeBar">
-            </canvas>
-            <hr />
-            <canvas id="profitVolumeGraph">
-            </canvas>
-            <hr />
-            <canvas id="amountGraph">
-            </canvas>
+            
+
+            <div id="canvases" style="display: none">
+                <canvas id="profitBar">
+                </canvas>
+                <hr />
+                <canvas id="volumeBar">
+                </canvas>
+                <hr />
+                <canvas id="profitVolumeGraph">
+                </canvas>
+                <hr />
+                <canvas id="amountGraph">
+                </canvas>
+            </div>
         </div>
     </body>
 </html>

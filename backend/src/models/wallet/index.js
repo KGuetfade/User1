@@ -1,21 +1,14 @@
-const CoinbasePro = require('coinbase-pro')
-const config = require('../../configuration')
 
-const key = config.get('COINBASE_PRO_API_KEY')
-const secret = config.get('COINBASE_PRO_API_SECRET')
-const passphrase = config.get('COINBASE_PRO_API_PASSPHRASE')
-const apiURI = config.get('COINBASE_PRO_API_URL')
 
 class Wallet {
-    constructor(products) {
+    constructor(products, clientProvider) {
         this.products = products        
         
         /**
          * Account: object with currency as key and account 
          * details like balance as data.
          */
-        const authClient = new CoinbasePro.AuthenticatedClient(key, secret, passphrase, apiURI)
-        authClient.getAccounts()
+        clientProvider.getClient().getAccounts()
             .then(data => {
                 this.accounts = data.reduce((acc, account) => {
                     const { currency } = account

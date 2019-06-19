@@ -1,6 +1,12 @@
 const btcprice = 8200.99
-const fees = [.75, .6, .54, .45, .3, .24, .21, .18, .15]
-const volumeIntervals = [100, 200, 500, 750, 1000, 2000, 5000, 10000, 20000]
+const fees = [.8, .75, .6, .54, .45, .3, .24, .21, .18, .15]
+const volumeIntervals = [0, 5, 10, 20, 50, 100, 200, 500, 750, 1000, 2000, 5000, 10000, 20000]
+
+const handleLoaded = () => {
+    $('#loading').css('display', 'none')
+    $('#spinner').css('display', 'none')
+    $('#canvases').css('display', 'block')
+}
 
 fetch('http://localhost:3000/data')
     .then(async response => {
@@ -18,7 +24,7 @@ fetch('http://localhost:3000/data')
         return JSON.parse(data)
     })
     .then(data => {
-        $('#spinner').css('display', 'none')
+        handleLoaded()
         createCharts(data)
     })
     .catch(err => console.log(err))

@@ -2,13 +2,7 @@ const TradeFirewall = require('../trade-firewall')
 const TradeExecutor = require('../trade-executor')
 const TradeVerifier = require('../trade-verifier')
 const Wallet = require('../models/wallet')
-const config = require('../configuration')
-
-const key = config.get('COINBASE_PRO_API_KEY')
-const secret = config.get('COINBASE_PRO_API_SECRET')
-const passphrase = config.get('COINBASE_PRO_API_PASSPHRASE')
-
-const auth = { key, secret, passphrase }
+const AuthenticatedClientProvider = require('../authenticated-client-provider')
 
 class Trader {
     constructor(products, calculator, fee) {
@@ -16,10 +10,11 @@ class Trader {
         this.calculator = calculator
         this.fee = fee
         
-        this.firewall = new TradeFirewall(this.products)
-        this.executor = new TradeExecutor()
+        this.clientProvider = new AuthenticatedClientProvider()
+        this.firewall = new TradeFirewall(this.products, this.clientProvider)
+        this.executor = new TradeExecutor(this.clientProvider)
         this.verifier = new TradeVerifier(this.products, auth=auth)
-        this.wallet = new Wallet(this.products)
+        this.wallet = new Wallet(this.products, this.clientProvider)
     }
 
     /**

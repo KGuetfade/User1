@@ -2,16 +2,14 @@ const BigNumber = require('bignumber.js')
 const CoinbasePro = require('coinbase-pro')
 
 class TradeFirewall {
-    constructor(products) {
+    constructor(products, clientProvider) {
         this.products = products        
 
         /**
          * Bases: object with currency pair as key and
          * general information on pair as data.
          */
-        
-        const client = new CoinbasePro.PublicClient()
-        client.getProducts()
+        clientProvider.getClient().getProducts()
             .then(data => {
                 this.bases = data.reduce((acc, product) => {
                     if (this.products.includes(product.id)) {

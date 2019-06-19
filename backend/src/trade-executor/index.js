@@ -9,8 +9,8 @@ const passphrase = config.get('COINBASE_PRO_API_PASSPHRASE')
 const apiURI = config.get('COINBASE_PRO_API_URL')
 
 class TradeExecutor {
-    constructor() {
-        this.authClient = new CoinbasePro.AuthenticatedClient(key, secret, passphrase, apiURI)
+    constructor(clientProvider) {
+        this.clientProvider = clientProvider
         this.state = { status: 'unlocked' }
     }
 
@@ -54,8 +54,9 @@ class TradeExecutor {
     execute(trades) {
         trades.forEach(trade => {
             trade.stages.requested = true
-            this.authClient.placeOrder(trade.params)
-                .catch(err => console.log(err))            
+            this.clientProvider.getClient()
+                               .placeOrder(trade.params)
+                               .catch(err => console.log(err))            
         })
     }
 
