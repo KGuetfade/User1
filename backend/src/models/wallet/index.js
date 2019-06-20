@@ -2,32 +2,39 @@ class Wallet {
     constructor(products, clientProvider) {
         this.products = products        
         
-        /**
-         * Account: object with currency as key and account 
-         * details like balance as data.
-         * {
-         *  id
-         *  currency
-         *  balance
-         *  available
-         *  hold
-         *  profile_id
-         * }
-         */
+        this.getAccounts(clientProvider)
+
+        setInterval(this.getAccounts.bind(this, clientProvider), 1000 * 60 * 5)
+        
+    }
+
+    /**
+     * Account: object with currency as key and account 
+     * details like balance as data.
+     * {
+     *  id
+     *  currency
+     *  balance
+     *  available
+     *  hold
+     *  profile_id
+     * }
+    */
+    getAccounts(clientProvider) {
         clientProvider.getClient().getAccounts()
-            .then(data => {
-                this.accounts = data.reduce((acc, account) => {
-                    const { currency } = account
-                    this.products.forEach(product => {
-                        if (product.split('-')[0] === currency || product.split('-')[1] === currency) {
-                            if (!acc[currency]) {
-                                acc[currency] = Object.assign({}, account)
-                            }
+        .then(data => {
+            this.accounts = data.reduce((acc, account) => {
+                const { currency } = account
+                this.products.forEach(product => {
+                    if (product.split('-')[0] === currency || product.split('-')[1] === currency) {
+                        if (!acc[currency]) {
+                            acc[currency] = Object.assign({}, account)
                         }
-                    })
-                    return acc
-                }, {})
-            })
+                    }
+                })
+                return acc
+            }, {})
+        })
     }
 
     /**

@@ -2,6 +2,7 @@ const TradeFirewall = require('../trade-firewall')
 const TradeExecutor = require('../trade-executor')
 const TradeVerifier = require('../trade-verifier')
 const TradeTracker = require('../trade-tracker')
+const Inspector = require('../inspector')
 const AuthenticatedClientProvider = require('../authenticated-client-provider')
 const Wallet = require('../models/wallet')
 const ArbitrageUnit = require('../models/arbitrage-unit')
@@ -20,6 +21,8 @@ class Trader {
         this.executor = new TradeExecutor(this.clientProvider)
         this.verifier = new TradeVerifier(this.wallet)
         this.tracker = new TradeTracker(this.verifier, feed)
+
+        this.inspector = new Inspector()
     }
 
     /**
