@@ -34,9 +34,9 @@ class Inspector {
         console.log(`Update at ${new Date()}\n`)
         console.log('--initial state--')
         this.logInitial()
-        console.log('--current state--')
+        console.log('\n--current state--')
         this.logCurrent()
-        console.log('--delta--')
+        console.log('\n--delta--')
         this.logDelta()
         console.log('')
 
