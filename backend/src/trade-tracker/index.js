@@ -1,8 +1,7 @@
 class TradeTracker {
-    constructor(verifier, feed) {
+    constructor(verifier) {
         this.units = []
         this.verifier = verifier
-        feed.on('message', this.process.bind(this))
     }
 
     /**
@@ -34,11 +33,21 @@ class TradeTracker {
         unit.trades.forEach(trade => this.processTrade(trade, data))
 
         if (unit.done()) {
-            this.units = this.units.filter(u => u.id != unit.id)
-            this.verifier.emit('verify', unit)
+            this.handleDone(unit)
         } else if (unit.canceled()) {
             throw new Error('trade got canceled')
         }
+    }
+
+    /**
+     * Function to handle a unit
+     * whose trades have all been
+     * completed succesfully
+     */
+    handleDone(unit) {
+        console.log(`trade executed succesfully for ${unit.id}`)
+        this.units = this.units.filter(u => u.id != unit.id)
+        this.verifier.emit('verify', unit)
     }
 
     /**
@@ -83,7 +92,7 @@ class TradeTracker {
 
             if (data.type === 'done') {
                 if (data.product_id === product_id) {
-                    if (data.order_id === this.order_id) {
+                    if (data.order_id === trade.order_id) {
                         trade.stages.done = true
                         trade.reason = data.reason
                     }

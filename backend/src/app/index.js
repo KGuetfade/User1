@@ -16,7 +16,7 @@ class App {
             this.dataCollector = new DataCollector(this.calculator)
             console.log('\nApp started in data-collecting mode.')
         } else if (this.tradeMode) {             
-            this.trader = new Trader(this.products, this.calculator, .75, this.orderbookFeed.syncOrderbooks)
+            this.trader = new Trader(this.products, this.calculator, .75)
             console.log('\nApp started in trade mode.') 
         }
         else { console.log('\nApp started in idle mode.') }
@@ -26,12 +26,12 @@ class App {
         this.orderbookFeed.on('update', this.run.bind(this))
     }
 
-    run(orderbooks) {
+    run(orderbooks, data) {
         if (this.dataMode) { 
             this.dataCollector.process(orderbooks) 
         }   
         else if (this.tradeMode) { 
-            this.trader.process(orderbooks) 
+            this.trader.process(orderbooks, data) 
         }     
         else { 
             const products = this.calculator.getInputFromOrderbooks(orderbooks)

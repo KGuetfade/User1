@@ -1,11 +1,22 @@
-const EventEmitter = require('./node_modules/events').EventEmitter
+const EventEmitter = require('events').EventEmitter
 const BigNumber = require('bignumber.js')
 const NetTrade = require('../models/net-trade')
 
 class TradeVerifier extends EventEmitter {
     constructor(wallet) {
+        super()
         this.wallet = wallet
         this.on('verify', this.verify.bind(this))
+    }
+
+    /**
+     * Logs the net profits for the trade
+     */
+    logNet(id, net) {
+        console.log(`trade data for unit ${id}`)
+        Object.keys(net).forEach(currency => {
+            console.log(`Net profit for ${currency}: ${net[currency]}`)
+        })
     }
 
     /**
@@ -20,12 +31,13 @@ class TradeVerifier extends EventEmitter {
             acc[currency] = this.getNet(currency, unit.trades)
         }, {})
 
-        distincts.forEach(currency => this.wallet.updateBalance(currency, net[currency]))
+        distincts.forEach(currency => this.wallet.updateBalance(currency, net[currency].toNumber()))
         NetTrade.create({
             net,
             time: new Date()
         })
         .catch(err => console.log(err))
+        this.logNet(unit.id, net)
     }
 
     /**
@@ -53,7 +65,7 @@ class TradeVerifier extends EventEmitter {
                 
                 if (currency === quote) {
                     const add = size ? BigNumber(size).times(price) : funds
-                    return acc.minus(add)
+                    return acc.plus(add)
                 } else if (currency === base) {
                     return size ? acc.minus(size) : acc.minus(BigNumber(funds).dividedBy(price))
                 }

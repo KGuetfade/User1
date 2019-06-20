@@ -9,7 +9,7 @@ const ArbitrageUnit = require('../models/arbitrage-unit')
 const uuidv4 = require('uuid/v4')
 
 class Trader {
-    constructor(products, calculator, fee, feed) {
+    constructor(products, calculator, fee) {
         this.products = products
         this.calculator = calculator
         this.fee = fee
@@ -20,9 +20,9 @@ class Trader {
         this.firewall = new TradeFirewall(this.products, this.clientProvider)
         this.executor = new TradeExecutor(this.clientProvider)
         this.verifier = new TradeVerifier(this.wallet)
-        this.tracker = new TradeTracker(this.verifier, feed)
+        this.tracker = new TradeTracker(this.verifier)
 
-        this.inspector = new Inspector()
+        this.inspector = new Inspector(this.wallet)
     }
 
     /**
@@ -30,7 +30,10 @@ class Trader {
      * If it passes, executor executes trade. Finally,
      * verifier checks and persists the trade.
      */
-    process(orderbooks) {
+    process(orderbooks, data) {
+        this.inspector.stopLoss()
+        this.tracker.process(data)
+
         const products = this.calculator.getInputFromOrderbooks(orderbooks)
         const { percentage, steps } = this.calculator.calculatePercentage(products)
 

@@ -28,7 +28,7 @@ class OrderbookFeed extends EventEmitter{
      */
     update(data) {
         if (this.initialized) {
-            this.emit('update', this.syncOrderbooks.books)
+            this.emit('update', this.syncOrderbooks.books, data)
         } else {
             for (let i = 0; i < this.products.length; i++) {
                 const p = this.products[i]

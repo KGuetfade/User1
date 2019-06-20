@@ -1,5 +1,5 @@
 const CoinbasePro = require('coinbase-pro')
-const config = require('../../configuration')
+const config = require('../configuration')
 
 const key = config.get('COINBASE_PRO_API_KEY')
 const secret = config.get('COINBASE_PRO_API_SECRET')
