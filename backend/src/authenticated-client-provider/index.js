@@ -15,7 +15,7 @@ class AuthenticatedClientProvider {
     }
 
     getClient() {
-        this.adjustTime()
+        this.adjustRequests()
         return this.authClient
     }
 
@@ -28,7 +28,7 @@ class AuthenticatedClientProvider {
         return this.maxRequests
     }
 
-    adjustTime() {
+    adjustRequests() {
         const now = new Date().getTime()
         const diff = this.time - now
         if (diff <= 1000) {

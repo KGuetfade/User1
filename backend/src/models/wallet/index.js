@@ -1,5 +1,3 @@
-
-
 class Wallet {
     constructor(products, clientProvider) {
         this.products = products        
@@ -7,6 +5,14 @@ class Wallet {
         /**
          * Account: object with currency as key and account 
          * details like balance as data.
+         * {
+         *  id
+         *  currency
+         *  balance
+         *  available
+         *  hold
+         *  profile_id
+         * }
          */
         clientProvider.getClient().getAccounts()
             .then(data => {
@@ -22,7 +28,29 @@ class Wallet {
                     return acc
                 }, {})
             })
-        
+    }
+
+    /**
+     * Updates the holds and therefore 
+     * also the available field.
+     * 
+     * Should be called when trade gets executed.
+     * Holds should be reset when trade is completed.
+     */
+    updateHolds(currency, hold) {
+        this.accounts[currency].hold += hold
+        if (this.accounts[currency].hold < 0) { this.accounts[currency].hold = 0 }
+        this.accounts[currency].available = this.accounts[currency].balance - this.accounts[currency].hold
+    }
+
+    /**
+     * Updates balance and therefore available field.
+     * 
+     * Should be called when trade is completed.
+     */
+    updateBalance(currency, balance) {
+        this.accounts[currency].balance += balance
+        this.accounts[currency].available = this.accounts[currency].balance - this.accounts[currency].hold
     }
 }
 

@@ -35,6 +35,7 @@ class Trader {
 
         this.calculator.calculateSizes(products, steps)
         if (!this.firewall.checkSizes(steps, this.wallet)) { return }
+        if (!this.firewall.checkClient()) { return }
         if (!this.firewall.checkUnlocked(this.executor.state)) { return }
 
         const id = uuidv4()
@@ -44,6 +45,7 @@ class Trader {
             lock: this.executor.lock.bind(this.executor),
             unlock: this.executor.unlock.bind(this.executor)
         })
+        
         this.executor.execute(unit)
         this.tracker.track(unit)
     }

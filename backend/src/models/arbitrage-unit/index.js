@@ -44,21 +44,18 @@ class ArbitrageUnit {
     }
 
     /**
-     * Process stream data.
-     */
-    process(data) {
-        this.trades.forEach(trade => {
-            trade.updateStage(data)
-        })
-        this.handleReceived()
-    }
-
-    /**
      * Function to check if all trades have been
      * executed succesfully.
      */
     done() {
-        return this.trades.reduce((acc, trade) => trade.done() && acc, true)
+        const res = this.trades.reduce((acc, trade) => trade.done() && acc, true)
+        if (res) {
+            if (this.executor.unlocks > 0) {
+                this.executor.unlock()
+                this.executor.unlocks--
+            }
+        }
+        return res
     }
 
     /**
@@ -67,20 +64,6 @@ class ArbitrageUnit {
      */
     canceled() {
         return this.trades.reduce((acc, trade) => trade.canceled() || acc, false)
-    }
-
-    /**
-     * Function to check if all trades have been received.
-     * Unlocks the executor upon first time called.
-     */
-    handleReceived() {
-        const res = this.trades.reduce((acc, trade) => trade.stages.received && acc, true)
-        if (res) {
-            if (this.executor.unlocks > 0) {
-                this.executor.unlock()
-                this.executor.unlocks--
-            }
-        }
     }
 
 }

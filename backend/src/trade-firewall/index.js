@@ -56,6 +56,17 @@ class TradeFirewall {
     }
 
     /**
+     * Checks if client has enough
+     * remaining requests to execute 
+     * trades.
+     */
+    checkClient(client) {
+        const remaining = client.getRemainingRequests()
+        if (remaining >= 3) { return true }
+        return false
+    }
+
+    /**
      * Takes in steps and checks if account for each currency has 
      * enough balance to execute trade. 
      */
@@ -67,13 +78,13 @@ class TradeFirewall {
 
             if (funds) {
                 const currency = id.split('-')[1]
-                const { balance } = wallet.accounts[currency]
-                if (funds.isGreaterThanOrEqualTo(BigNumber(balance))) { return false }
+                const { available } = wallet.accounts[currency]
+                if (funds.isGreaterThanOrEqualTo(BigNumber(available))) { return false }
 
             } else if (size) {
                 const currency = id.split('-')[0]
-                const { balance } = wallet.accounts[currency]
-                if (size.isGreaterThanOrEqualTo(BigNumber(balance))) { return false }
+                const { available } = wallet.accounts[currency]
+                if (size.isGreaterThanOrEqualTo(BigNumber(available))) { return false }
 
             } else {
                 throw new Error('something wrong with steps')
