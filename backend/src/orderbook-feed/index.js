@@ -90,11 +90,11 @@ class OrderbookFeed extends EventEmitter{
             }
 
             orderBook.getBestBid = function() {
-                return this._bids.max()
+                return this._bids.max().orders
             }
 
             orderBook.getBestAsk = function() {
-                return this._asks.min()
+                return this._asks.min().orders
             }
         })        
     }
