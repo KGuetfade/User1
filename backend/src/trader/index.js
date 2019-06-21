@@ -42,11 +42,9 @@ class Trader {
         console.log('Made it past percentage')
         this.calculator.calculateSizes(products, steps)
         if (!this.firewall.checkSizes(steps, this.wallet)) { return }
-        console.log('Made it past sizes')
         if (!this.firewall.checkClient()) { return }
-        console.log('Made it past client')
         if (!this.firewall.checkUnlocked(this.executor.state)) { return }
-        console.log('Made it past lock')
+        console.log(`${new Date()} - found opportunity at ${percentage} %`)
 
         const id = uuidv4()
         const unit = new ArbitrageUnit(id, steps, {

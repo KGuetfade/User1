@@ -1,9 +1,9 @@
 const TradeTracker = require('../../../src/trade-tracker')
 const Trade = require('../../../src/models/trade')
 
-const tracker = new TradeTracker({})
-
 describe('test process trade', () => {
+    const tracker = new TradeTracker({ emit: (str, obj) => {} })
+
     const params = {
         client_oid: 'asnudnuna',
         type: 'market',
@@ -200,5 +200,34 @@ describe('test process trade', () => {
         expect(matched).toBe(false)
         expect(done).toBe(true)
         expect(trade.reason).toBe('canceled')
+    })
+})
+
+describe('test handle done', () => {
+    const tracker = new TradeTracker({ emit: (str, obj) => {} })
+
+    test('unit done, should remove it from units', () => {
+        tracker.units = [{id: 1}, {id: 2}, {id: 3}]
+        tracker.handleDone({id: 2})
+        expect(tracker.units.length).toBe(2)
+        expect(tracker.units).toEqual([{id: 1}, {id: 3}])
+    })
+})
+
+describe('test track', () => {
+    const tracker = new TradeTracker({ emit: (str, obj) => {} })
+    
+    test('unit should be added', () => {
+        expect(tracker.units.length).toBe(0)
+        expect(tracker.units).toEqual([])
+
+        const unit1 = { id: 1 } 
+        const unit2 = { id: 2 }
+
+        tracker.track(unit1)
+        tracker.track(unit2)
+
+        expect(tracker.units.length).toBe(2)
+        expect(tracker.units).toEqual([{ id: 1 }, { id: 2 }])
     })
 })

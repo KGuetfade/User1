@@ -13,7 +13,7 @@ class TradeVerifier extends EventEmitter {
      * Logs the net profits for the trade
      */
     logNet(id, net) {
-        console.log(`trade data for unit ${id}`)
+        console.log(`${new Date()} - trade data for unit ${id}`)
         Object.keys(net).forEach(currency => {
             console.log(`\t* Net profit for ${currency}: ${net[currency]}`)
         })
@@ -30,6 +30,7 @@ class TradeVerifier extends EventEmitter {
         const distincts = this.getDistinct(unit.trades)
         const net = distincts.reduce((acc, currency) => {
             acc[currency] = this.getNet(currency, unit.trades)
+            return acc
         }, {})
 
         distincts.forEach(currency => this.wallet.updateBalance(currency, net[currency]))
@@ -38,6 +39,7 @@ class TradeVerifier extends EventEmitter {
             time: new Date()
         })
         .catch(err => console.log(err))
+        
         this.logNet(unit.id, net)
     }
 
