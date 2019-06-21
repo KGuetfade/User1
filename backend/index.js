@@ -6,7 +6,7 @@ const memwatch = require('node-memwatch')
 program.version('0.0.1')
     .option('-d, --data [data]', 'Collect data')
     .option('-t, --trade [trade]', 'Trading mode')
-    .option('-f, --fee [fee]', 'Fee used for calculations', cmdArgsFloatParser, .75)
+    .option('-f, --fee [fee]', 'Fee used for calculations', cmdArgsFloatParser, .8)
     .option('-l, --loss [loss]', 'Maximum loss (%) allowed', cmdArgsFloatParser, .9)
     .parse(process.argv)
 

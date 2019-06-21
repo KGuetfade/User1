@@ -6,7 +6,7 @@ class Inspector {
         setTimeout(() => {
             if (!this.wallet.accounts) { throw new Error('wallet did not initialize') }
             this.initialstate = this.wallet.accounts
-            console.log('--initial state--')
+            console.log('\n--initial state--')
             this.logInitial()
         }, 1000 * 10)
         setInterval(this.log.bind(this), 1000 * 60 * 10)

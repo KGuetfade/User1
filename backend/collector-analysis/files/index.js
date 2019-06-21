@@ -91,20 +91,7 @@ const createCharts = data => {
 
 const getProfitAbovePercentage = (percentage, data) => {
     const above = data.filter(d => d.percentage >= percentage)
-    const filtered = above.filter((f, i) => {
-        if (i === 0) { return true }
-        const prev = above[i-1]
-        const { funds, size } = f.steps[0]
-        if (funds) {
-            if (funds === prev.steps[0].funds) { return false }
-        } else if (size) {
-            if (size === prev.steps[0].size) { return false }
-        } else {
-            return false
-        }
-        return true
-    })
-    const profit = filtered.reduce((acc, d) => {
+    const profit = above.reduce((acc, d) => {
         const step = d.steps[0]
 
         if (!step.funds && !step.size) { return acc }
@@ -122,20 +109,7 @@ const getProfitAbovePercentage = (percentage, data) => {
 
 const getTotalVolumeAbovePercentage = (percentage, data) => {
     const above = data.filter(d => d.percentage >= percentage)
-    const filtered = above.filter((f, i) => {
-        if (i === 0) { return true }
-        const prev = above[i-1]
-        const { funds, size } = f.steps[0]
-        if (funds) {
-            if (funds === prev.steps[0].funds) { return false }
-        } else if (size) {
-            if (size === prev.steps[0].size) { return false }
-        } else {
-            return false
-        }
-        return true
-    })
-    const volume = filtered.reduce((acc, d) => {
+    const volume = above.reduce((acc, d) => {
         const step = d.steps[0]
 
         if (!step.funds && !step.size) { return acc }
@@ -151,20 +125,7 @@ const getTotalVolumeAbovePercentage = (percentage, data) => {
 
 const getProfitPerVolume = (percentage, data, volume) => {
     const above = data.filter(d => d.percentage >= percentage)
-    const filtered = above.filter((f, i) => {
-        if (i === 0) { return true }
-        const prev = above[i-1]
-        const { funds, size } = f.steps[0]
-        if (funds) {
-            if (funds === prev.steps[0].funds) { return false }
-        } else if (size) {
-            if (size === prev.steps[0].size) { return false }
-        } else {
-            return false
-        }
-        return true
-    })
-    const profit = filtered.reduce((acc, d) => {
+    const profit = above.reduce((acc, d) => {
         const step = d.steps[0]
         const euro = step.type === 'buy' ? step.funds : step.size * btcprice
         const net_percentage = d.percentage - percentage
@@ -179,18 +140,5 @@ const getProfitPerVolume = (percentage, data, volume) => {
 
 const getCountAbovePercentage = (percentage, data) => {
     const above = data.filter(d => d.percentage >= percentage)
-    const filtered = above.filter((f, i) => {
-        if (i === 0) { return true }
-        const prev = above[i-1]
-        const { funds, size } = f.steps[0]
-        if (funds) {
-            if (funds === prev.steps[0].funds) { return false }
-        } else if (size) {
-            if (size === prev.steps[0].size) { return false }
-        } else {
-            return false
-        }
-        return true
-    })
-    return filtered.length
+    return above.length
 }

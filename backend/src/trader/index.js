@@ -17,13 +17,12 @@ class Trader {
         
         this.clientProvider = new AuthenticatedClientProvider()
         this.wallet = new Wallet(this.products, this.clientProvider)
+        this.inspector = new Inspector(this.wallet, this.loss)
 
         this.firewall = new TradeFirewall(this.products, this.clientProvider)
         this.executor = new TradeExecutor(this.clientProvider)
         this.verifier = new TradeVerifier(this.wallet)
         this.tracker = new TradeTracker(this.verifier)
-
-        this.inspector = new Inspector(this.wallet, this.loss)
     }
 
     /**
@@ -39,7 +38,7 @@ class Trader {
         const { percentage, steps } = this.calculator.calculatePercentage(products)
 
         if (!this.firewall.checkPercentage(percentage, this.fee)) { return }
-        console.log('Made it past percentage check')
+        console.log(`Made it past percentage check ${percentage}`)
         this.calculator.calculateSizes(products, steps)
         if (!this.firewall.checkSizes(steps, this.wallet)) { return }
         console.log('Made it past size check')

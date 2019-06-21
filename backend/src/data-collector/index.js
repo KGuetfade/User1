@@ -29,7 +29,7 @@ class DataCollector {
         }
         
         this.calculator.calculateSizes(products, steps)
-        this.saveToDatabase(result)
+        this.saveToDatabase({ percentage, steps })
     }
 
     /**
@@ -37,9 +37,8 @@ class DataCollector {
      */
     saveToDatabase(data) {
         data.time = new Date()
-        ArbitrageModel.create(data, err => {
-            if (err) { console.log(err) }
-        })
+        ArbitrageModel.create(data)
+                      .catch(err => console.log(err))
     }
 }
 

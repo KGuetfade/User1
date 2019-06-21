@@ -5,63 +5,98 @@ class OrderbookFeed extends EventEmitter{
     constructor(products) {
         super()
         this.products = products
-        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);     
-        this.heartbeats = {}
+        this.syncOrderbooks = new CoinbasePro.OrderbookSync(products);    
+        this.applySketchyPatch()
 
-        this.syncOrderbooks.on('message', this.updateHeartBeats.bind(this))
-        this.syncOrderbooks.on('message', this.update.bind(this))
+        this.synced = this.products.reduce((acc, product) => {
+            acc[product] = false
+            return acc
+        }, {})
+
+        this.syncOrderbooks.on('message', this.onMessage.bind(this))
+        this.syncOrderbooks.on('sync', this.onSync.bind(this))
+        this.syncOrderbooks.on('synced', this.onSynced.bind(this))
+        
         this.syncOrderbooks.on('error', err => console.log(err))
         this.syncOrderbooks.on('close', () => {
             console.log('Socket connection closed.\nAttempting to reconnect...')
-            this.initialized = false
             this.syncOrderbooks.connect()
         })        
-
-        setInterval(() => {
-            this.products.forEach(this.checkHeartBeats.bind(this))
-        }, 1000 * 60 * 5);        
     }
 
     /**
      * Checks if orderbooks are not empty, if so it emits
      * and update event.
      */
-    update(data) {
-        if (this.initialized) {
+    onMessage(data) {        
+        if (this.allSynced()) {
             this.emit('update', this.syncOrderbooks.books, data)
-        } else {
-            for (let i = 0; i < this.products.length; i++) {
-                const p = this.products[i]
-    
-                const bids = this.syncOrderbooks.books[p].state()['bids']
-                const asks = this.syncOrderbooks.books[p].state()['asks']
-    
-                if (bids.length === 0 || asks.length === 0) { return }
+        } 
+    }
+
+    /**
+     * Handle orderbook sync event.
+     */
+    onSync(product_id) {
+        console.log(`${new Date()} - syncing ${product_id}`)
+        this.synced[product_id] = false
+    }
+
+    /**
+     * Handle orderbook synced event.
+     */
+    onSynced(product_id) {
+        console.log(`${new Date()} - synced ${product_id}`)
+        this.synced[product_id] = true
+    }
+
+    /**
+     * Function which checks if all
+     * products have been synced.
+     */
+    allSynced() {
+        return this.products.reduce((acc, product) => acc && this.synced[product], true)
+    }
+
+    logTop() {
+        console.log('')
+        this.products.forEach(product => {
+            const book = this.syncOrderbooks.books[product]
+            const bid = book.state()['bids'][0]
+            const ask = book.state()['asks'][0]
+            if (bid !== undefined && ask !== undefined) {
+                console.log(`${product}: bid: ${bid.price.toString()} ask: ${ask.price.toString()} || bid: ${book.getBestBid().price.toString()} ask: ${book.getBestAsk().price.toString()}`)
+            }            
+        })
+    }
+
+    /**
+     * Applies sketchy path from
+     * github.
+     * https://github.com/coinbase/coinbase-pro-node/issues/308
+     */
+    applySketchyPatch() {
+        this.products.forEach(product => {
+            const orderBook = this.syncOrderbooks.books[product]
+
+            const oldOrderBookStateMethod = orderBook.state
+            orderBook.state = function (book) {
+                if (book) {
+                    this._asks.clear()
+                    this._bids.clear()
+                    this._ordersByID = {}
+                }
+                return oldOrderBookStateMethod.call(this, book)
             }
-            this.initialized = true
-        }
-    }
 
-    /**
-     * Checks whether the heartbeat channel is still alive.
-     * If last heatbeat was more than 15 seconds ago, it
-     * gets logged to console.
-     */
-    checkHeartBeats(product_id) {
-        const lastBeat = this.heartbeats[product_id]
-        const now = new Date().getTime()
-        const last = new Date(lastBeat).getTime()
-        if (now - last > 1000 * 15) { console.log(`Heartbeat stopped for ${product_id}`) }
-    }
+            orderBook.getBestBid = function() {
+                return this._bids.max()
+            }
 
-    /**
-     * Updates the heartbeats for each product.
-     */
-    updateHeartBeats(data) {
-        if (data.type === 'heartbeat') {
-            const { product_id, time } = data
-            this.heartbeats[product_id] = time      
-        }
+            orderBook.getBestAsk = function() {
+                return this._asks.min()
+            }
+        })        
     }
 }
 

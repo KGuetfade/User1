@@ -272,7 +272,10 @@ class ArbitrageCalculator {
     getInputFromOrderbooks(orderbooks) {
         return Object.keys(orderbooks).map(product => ({ 
                     id: product, 
-                    orderbook: orderbooks[product].state() 
+                    orderbook: {
+                        'bids': [...orderbooks[product].getBestBid().orders],
+                        'asks': [...orderbooks[product].getBestAsk().orders]
+                    }
                }))
     }
 }

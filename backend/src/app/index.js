@@ -52,7 +52,7 @@ class App {
     }
 
     log_order(order) {
-        return ` price ${order.price.toString()} | size ${order.size.toString()}`
+        return `book: price ${order.price.toString()} | size ${order.size.toString()}`
     }
 }
 

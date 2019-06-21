@@ -8,7 +8,7 @@
     "start": "node index.js",
     "watch": "nodemon index.js",
     "both": "concurrently \"npm run watch\" \"cd ../frontend && npm start\"",
-    "data": "\"cd ./data-analysis && node index.js\""
+    "data": "\"cd ./collector-analysis && node index.js\""
   },
   "keywords": [],
   "author": "",
