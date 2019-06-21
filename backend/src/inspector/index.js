@@ -1,8 +1,7 @@
-const BigNumber = require('bignumber.js')
-
 class Inspector {
-    constructor(wallet) {
+    constructor(wallet, loss) {
         this.wallet = wallet
+        this.loss = loss
 
         setTimeout(() => {
             if (!this.wallet.accounts) { throw new Error('wallet did not initialize') }
@@ -19,8 +18,8 @@ class Inspector {
     stopLoss() {
         if (!this.initialstate) { return }
         Object.keys(this.wallet.accounts).forEach(currency => {
-            const stop = BigNumber(this.initialstate[currency].balance).times(0.9)
-            if (stop.isGreaterThan(this.wallet.accounts[currency].balance)) {
+            const stop = this.initialstate[currency].balance.times(this.loss)
+            if (this.wallet.accounts[currency].balance.isLessThan(stop)) {
                 throw new Error('Application postphoned indefinetly. You lost more than 10% of your money u stupid nigga')
             }
         })
@@ -30,15 +29,15 @@ class Inspector {
      * Logs relevant data.
      */
     log() {
-        console.log('=======================')
-        console.log(`Update at ${new Date()}\n`)
+        console.log('\n=======================')
+        console.log(`Status update at ${new Date()}\n`)
         console.log('--initial state--')
         this.logInitial()
         console.log('\n--current state--')
         this.logCurrent()
         console.log('\n--delta--')
         this.logDelta()
-        console.log('')
+        console.log('\n=======================')
 
     }
 

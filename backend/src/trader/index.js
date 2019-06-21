@@ -22,7 +22,7 @@ class Trader {
         this.verifier = new TradeVerifier(this.wallet)
         this.tracker = new TradeTracker(this.verifier)
 
-        this.inspector = new Inspector(this.wallet)
+        this.inspector = new Inspector(this.wallet, .9)
     }
 
     /**

@@ -79,12 +79,12 @@ class TradeFirewall {
             if (funds) {
                 const currency = id.split('-')[1]
                 const { available } = wallet.accounts[currency]
-                if (funds.isGreaterThanOrEqualTo(BigNumber(available))) { return false }
+                if (funds.isGreaterThanOrEqualTo(available)) { return false }
 
             } else if (size) {
                 const currency = id.split('-')[0]
                 const { available } = wallet.accounts[currency]
-                if (size.isGreaterThanOrEqualTo(BigNumber(available))) { return false }
+                if (size.isGreaterThanOrEqualTo(available)) { return false }
 
             } else {
                 throw new Error('something wrong with steps')

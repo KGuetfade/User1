@@ -31,7 +31,7 @@ class TradeVerifier extends EventEmitter {
             acc[currency] = this.getNet(currency, unit.trades)
         }, {})
 
-        distincts.forEach(currency => this.wallet.updateBalance(currency, net[currency].toNumber()))
+        distincts.forEach(currency => this.wallet.updateBalance(currency, net[currency]))
         NetTrade.create({
             net,
             time: new Date()
