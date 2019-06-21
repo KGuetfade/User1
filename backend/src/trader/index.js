@@ -9,10 +9,11 @@ const ArbitrageUnit = require('../models/arbitrage-unit')
 const uuidv4 = require('uuid/v4')
 
 class Trader {
-    constructor(products, calculator, fee) {
+    constructor(products, calculator, fee, loss) {
         this.products = products
         this.calculator = calculator
         this.fee = fee
+        this.loss = loss
         
         this.clientProvider = new AuthenticatedClientProvider()
         this.wallet = new Wallet(this.products, this.clientProvider)
@@ -22,7 +23,7 @@ class Trader {
         this.verifier = new TradeVerifier(this.wallet)
         this.tracker = new TradeTracker(this.verifier)
 
-        this.inspector = new Inspector(this.wallet, .9)
+        this.inspector = new Inspector(this.wallet, this.loss)
     }
 
     /**

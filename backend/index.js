@@ -4,17 +4,20 @@ const Database = require('./src/database')
 const memwatch = require('node-memwatch')
 
 program.version('0.0.1')
-    .option('-d, --data', 'Collect data')
-    .option('-t, --trade', 'Trading mode')
+    .option('-d, --data [data]', 'Collect data')
+    .option('-t, --trade [trade]', 'Trading mode')
+    .option('-f, --fee [fee]', 'Fee used for calculations', cmdArgsFloatParser, .75)
+    .option('-l, --loss [loss]', 'Maximum loss (%) allowed', cmdArgsFloatParser, .9)
     .parse(process.argv)
 
 const main = async () => {
     await Database.connect()
 
-    const { data, trade } = program
+    const { data, trade, fee, loss } = program
+
     const products = ['BTC-EUR', 'ETH-EUR', 'ETH-BTC']
 
-    const app = new App(products, data, trade)
+    const app = new App(products, data, trade, fee, loss)
     app.start()
 
     memwatch.on('leak', info => console.log(info))
@@ -23,3 +26,13 @@ const main = async () => {
 try {
     main()
 } catch(error) { console.log(error) }
+
+function cmdArgsFloatParser(string, defaultValue) {
+    var float = parseFloat(string);
+  
+    if (typeof float == 'number') {
+      return float;
+    } else {
+      return defaultValue;
+    }
+}

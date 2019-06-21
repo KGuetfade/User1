@@ -8,7 +8,7 @@ class TradeExecutor {
      * Executes the trades.
      */
     execute(unit) {
-        console.log(`performing trade on unit ${unit.id}`)
+        console.log(`${new Date()} - performing trade on unit ${unit.id}`)
         unit.trades.forEach(trade => {
             trade.stages.requested = true
             this.clientProvider.getClient()

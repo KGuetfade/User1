@@ -7,7 +7,7 @@ class Inspector {
             if (!this.wallet.accounts) { throw new Error('wallet did not initialize') }
             this.initialstate = this.wallet.accounts
         }, 1000 * 10)
-        setInterval(this.log.bind(this), 1000 * 60 * 5)
+        setInterval(this.log.bind(this), 1000 * 60 * 10)
     }
 
     /**
@@ -20,7 +20,7 @@ class Inspector {
         Object.keys(this.wallet.accounts).forEach(currency => {
             const stop = this.initialstate[currency].balance.times(this.loss)
             if (this.wallet.accounts[currency].balance.isLessThan(stop)) {
-                throw new Error('Application postphoned indefinetly. You lost more than 10% of your money u stupid nigga')
+                throw new Error('Application postphoned indefinitely. You lost more than 10% of your money u stupid nigga')
             }
         })
     }
@@ -29,15 +29,13 @@ class Inspector {
      * Logs relevant data.
      */
     log() {
-        console.log('\n=======================')
-        console.log(`Status update at ${new Date()}\n`)
+        console.log(`\n${new Date()} - Status update\n`)
         console.log('--initial state--')
         this.logInitial()
         console.log('\n--current state--')
         this.logCurrent()
         console.log('\n--delta--')
         this.logDelta()
-        console.log('\n=======================')
 
     }
 
@@ -47,8 +45,8 @@ class Inspector {
      */
     logDelta() {
         Object.keys(this.wallet.accounts).forEach(currency => {
-            const net = this.wallet.accounts[currency].balance - this.initialstate[currency].balance
-            console.log(`Net profit for ${currency}: ${net}`)
+            const net = this.wallet.accounts[currency].balance.minus(this.initialstate[currency].balance)
+            console.log(`Net profit for ${currency}: ${net.toFixed(6)}`)
         })
     }
 
@@ -58,7 +56,7 @@ class Inspector {
     logCurrent() {
         Object.keys(this.wallet.accounts).forEach(currency => {
             const balance = this.wallet.accounts[currency].balance
-            console.log(`Current balance for ${currency}: ${balance}`)
+            console.log(`Current balance for ${currency}: ${balance.toFixed(6)}`)
         })
     }
 
@@ -68,7 +66,7 @@ class Inspector {
     logInitial() {
         Object.keys(this.wallet.accounts).forEach(currency => {
             const balance = this.initialstate[currency].balance
-            console.log(`Initial balance for ${currency}: ${balance}`)
+            console.log(`Initial balance for ${currency}: ${balance.toFixed(6)}`)
         })
     }
 }

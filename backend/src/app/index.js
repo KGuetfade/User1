@@ -4,22 +4,27 @@ const Trader = require('../trader')
 const DataCollector = require('../data-collector')
 
 class App {
-    constructor(products, dataMode, tradeMode) {
+    constructor(products, dataMode, tradeMode, fee, loss) {
+        this.products = products
         this.dataMode = dataMode
         this.tradeMode = tradeMode
-        this.products = products
+        this.fee = fee
+        this.loss = loss
 
         this.orderbookFeed = new OrderbookFeed(this.products)
         this.calculator = new ArbitrageCalculator()   
         
         if (this.dataMode) {            
             this.dataCollector = new DataCollector(this.calculator)
-            console.log(`\n${new Date()}App started in data-collecting mode.`)
+            console.log(`\n${new Date()} - App started in data-collecting mode.`)
         } else if (this.tradeMode) {             
-            this.trader = new Trader(this.products, this.calculator, .75)
-            console.log(`\n${new Date()}App started in trade mode.`) 
+            this.trader = new Trader(this.products, this.calculator, this.fee, this.loss)
+            console.log(`\n${new Date()} - App started in trade mode.`) 
+            console.log(`${new Date()} - Only trades above ${this.fee} % profit will be accepted.`) 
+            console.log(`${new Date()} - Application will be terminated when balance hits ${this.loss*100} % value or less.`) 
+            
         }
-        else { console.log(`\n${new Date()}App started in idle mode.`) }
+        else { console.log(`\n${new Date()} - App started in idle mode.`) }
     }
 
     start() {

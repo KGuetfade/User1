@@ -45,7 +45,7 @@ class TradeTracker {
      * completed succesfully
      */
     handleDone(unit) {
-        console.log(`trade executed succesfully for ${unit.id}`)
+        console.log(`${new Date()} - trade executed succesfully for ${unit.id}`)
         this.units = this.units.filter(u => u.id != unit.id)
         this.verifier.emit('verify', unit)
     }
