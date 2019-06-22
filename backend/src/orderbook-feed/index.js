@@ -22,13 +22,20 @@ class OrderbookFeed extends EventEmitter{
             console.log('Socket connection closed.\nAttempting to reconnect...')
             this.syncOrderbooks.connect()
         })        
+
+        setInterval(() => {
+            console.log(`Average latency over 1 minute period - ${this.latency / this.count}`)
+            this.latency = 0
+            this.count = 0
+        }, 1000 * 60)
     }
 
     /**
      * Checks if orderbooks are not empty, if so it emits
      * and update event.
      */
-    onMessage(data) {        
+    onMessage(data) {      
+        this.profilePerformance(data)  
         if (this.allSynced()) {
             this.emit('update', this.syncOrderbooks.books, data)
         } 
@@ -58,6 +65,9 @@ class OrderbookFeed extends EventEmitter{
         return this.products.reduce((acc, product) => acc && this.synced[product], true)
     }
 
+    /**
+     * Logs top bid and ask of orderbook
+     */
     logTop() {
         console.log('')
         this.products.forEach(product => {
@@ -68,6 +78,26 @@ class OrderbookFeed extends EventEmitter{
                 console.log(`${product}: bid: ${bid.price.toString()} ask: ${ask.price.toString()} || bid: ${book.getBestBid().price.toString()} ask: ${book.getBestAsk().price.toString()}`)
             }            
         })
+    }
+
+    /**
+     * Profile network latency
+     */
+    profilePerformance(data) {
+        if (!this.count) {
+            this.count = 0
+        }
+
+        if (!this.latency) {
+            this.latency = 0
+        }
+
+        const sent = new Date(data.time).getTime()
+        const arrived = new Date().getTime()
+        const latency = arrived - sent
+
+        this.latency += latency
+        this.count++
     }
 
     /**
@@ -97,7 +127,7 @@ class OrderbookFeed extends EventEmitter{
                 return this._asks.min().orders
             }
         })        
-    }
+    }    
 }
 
 module.exports = OrderbookFeed

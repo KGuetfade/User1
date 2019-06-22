@@ -1,4 +1,4 @@
-const btcprice = 8200.99
+const btcprice = 10000
 const fees = [.8, .75, .6, .54, .45, .3, .24, .21, .18, .15]
 const volumeIntervals = [0, 5, 10, 20, 50, 100, 200, 500, 750, 1000, 2000, 5000, 10000, 20000]
 
@@ -16,7 +16,13 @@ fetch('http://localhost:3000/data')
 
         while(!finished) {
             const { done, value } = await reader.read()
-            let str = String.fromCharCode.apply(null, new Uint16Array(value))
+            let str;
+            try {
+                str = String.fromCharCode.apply(null, new Uint16Array(value))
+            } catch (err) { 
+                alert(err)
+            }
+            
             data = data.concat(str)
             if (done) { finished = true }
         }
@@ -97,11 +103,11 @@ const getProfitAbovePercentage = (percentage, data) => {
         if (!step.funds && !step.size) { return acc }
 
         const euro = step.type === 'buy' ? step.funds : step.size * btcprice
-        const net_percentage = d.percentage - percentage
+        const net_percentage = (d.percentage - percentage) / 100
         
         if (euro <= 15) { return acc }
 
-        const profit = (net_percentage / 100) * euro
+        const profit = net_percentage * euro
         return acc + profit
     }, 0)
     return profit
@@ -140,5 +146,6 @@ const getProfitPerVolume = (percentage, data, volume) => {
 
 const getCountAbovePercentage = (percentage, data) => {
     const above = data.filter(d => d.percentage >= percentage)
+    console.log(`amount above ${percentage}: ${above.length}`)
     return above.length
 }
