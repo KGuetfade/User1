@@ -38,13 +38,15 @@ class Trader {
         const { percentage, steps } = this.calculator.calculatePercentage(products)
 
         if (!this.firewall.checkPercentage(percentage, this.fee)) { return }
-        console.log(`Made it past percentage check ${percentage}`)
+
         this.calculator.calculateSizes(products, steps)
+
         if (!this.firewall.checkSizes(steps, this.wallet)) { return }
-        console.log('Made it past size check')
+        
         if (!this.firewall.checkClient()) { return }
-        console.log('Made it past client check')
+        
         if (!this.firewall.checkUnlocked(this.executor.state)) { return }
+        
         console.log(`${new Date()} - found opportunity at ${percentage} %`)
 
         const id = uuidv4()

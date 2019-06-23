@@ -23,11 +23,11 @@ class OrderbookFeed extends EventEmitter{
             this.syncOrderbooks.connect()
         })        
 
-        setInterval(() => {
+        /* setInterval(() => {
             console.log(`Average latency over 1 minute period - ${this.latency / this.count}`)
             this.latency = 0
             this.count = 0
-        }, 1000 * 60)
+        }, 1000 * 60) */
     }
 
     /**
@@ -35,7 +35,7 @@ class OrderbookFeed extends EventEmitter{
      * and update event.
      */
     onMessage(data) {      
-        this.profilePerformance(data)  
+        //this.profilePerformance(data)  
         if (this.allSynced()) {
             this.emit('update', this.syncOrderbooks.books, data)
         } 
