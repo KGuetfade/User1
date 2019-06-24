@@ -41,7 +41,7 @@ class App {
         else { 
             const products = this.calculator.getInputFromOrderbooks(orderbooks)
             const result = this.calculator.calculate(products)
-            //this.log(result, orderbooks) 
+            this.log(result, orderbooks) 
         }
     }
 

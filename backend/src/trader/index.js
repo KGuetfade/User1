@@ -37,17 +37,19 @@ class Trader {
         const products = this.calculator.getInputFromOrderbooks(orderbooks)
         const { percentage, steps } = this.calculator.calculatePercentage(products)
 
+        this.inspector.trackPercentage(percentage)
+
         if (!this.firewall.checkPercentage(percentage, this.fee)) { return }
 
         this.calculator.calculateSizes(products, steps)
 
-        if (!this.firewall.checkSizes(steps, this.wallet)) { return }
+        if (!this.firewall.checkSizes(steps, this.wallet, this.calculator, products)) { return }
         
-        if (!this.firewall.checkClient()) { return }
+        if (!this.firewall.checkClient(this.clientProvider)) { return }
         
         if (!this.firewall.checkUnlocked(this.executor.state)) { return }
         
-        console.log(`${new Date()} - found opportunity at ${percentage} %`)
+        console.log(`found opportunity at ${percentage} %`)
 
         const id = uuidv4()
         const unit = new ArbitrageUnit(id, steps, {

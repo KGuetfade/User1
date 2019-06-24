@@ -36,10 +36,10 @@ class TradeFirewall {
      * in the steps, based on minimum trading sizes, wallet status
      * and whether steps have funds or sizes
      */
-    checkSizes(steps, wallet) {
+    checkSizes(steps, wallet, calculator, products) {
         if (!steps[0].funds && !steps[0].size) { return false }
         if (!this.checkSizeLimits(steps)) { return false }
-        if (!this.checkBalances(steps, wallet)) { return false }
+        if (!this.checkBalances(steps, wallet, calculator, products)) { return false }
         
         return true
     }
@@ -68,9 +68,10 @@ class TradeFirewall {
 
     /**
      * Takes in steps and checks if account for each currency has 
-     * enough balance to execute trade. 
+     * enough balance to execute trade. Adjusts funds and sizes
+     * if initial amounts exceed balances.
      */
-    checkBalances(steps, wallet) {
+    checkBalances(steps, wallet, calculator, products) {
         if (!wallet.accounts) { return false }
 
         for (let i = 0; i < 3; i++) {
@@ -79,12 +80,20 @@ class TradeFirewall {
             if (funds) {
                 const currency = id.split('-')[1]
                 const { available } = wallet.accounts[currency]
-                if (funds.isGreaterThanOrEqualTo(available)) { return false }
+                if (funds.isGreaterThanOrEqualTo(available)) { 
+                    steps[i].funds = available.times(.8)    
+                    calculator.adjustSizes(products, steps, i)
+                    return true
+                }
 
             } else if (size) {
                 const currency = id.split('-')[0]
                 const { available } = wallet.accounts[currency]
-                if (size.isGreaterThanOrEqualTo(available)) { return false }
+                if (size.isGreaterThanOrEqualTo(available)) { 
+                    steps[i].size = available.times(.8)    
+                    calculator.adjustSizes(products, steps, i)
+                    return true
+                 }
 
             } else {
                 throw new Error('something wrong with steps')

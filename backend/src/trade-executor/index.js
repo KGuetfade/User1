@@ -8,7 +8,7 @@ class TradeExecutor {
      * Executes the trades.
      */
     execute(unit) {
-        console.log(`${new Date()} - performing trade on unit ${unit.id}`)
+        console.log(`performing trade on unit ${unit.id}`)
         unit.trades.forEach(trade => {
             console.log(`\t* ${trade.params.side} ${trade.params.product_id} at ${trade.params.funds ? trade.params.funds : trade.params.size}`)
             trade.stages.requested = true

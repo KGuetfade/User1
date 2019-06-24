@@ -13,7 +13,7 @@ class TradeVerifier extends EventEmitter {
      * Logs the net profits for the trade
      */
     logNet(id, net) {
-        console.log(`${new Date()} - trade data for unit ${id}`)
+        console.log(`trade data for unit ${id}`)
         Object.keys(net).forEach(currency => {
             console.log(`\t* Net profit for ${currency}: ${net[currency]}`)
         })

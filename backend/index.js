@@ -1,7 +1,7 @@
 const program = require('commander')
 const App = require('./src/app')
 const Database = require('./src/database')
-const memwatch = require('node-memwatch')
+//const memwatch = require('node-memwatch')
 
 program.version('0.0.1')
     .option('-d, --data [data]', 'Collect data')
@@ -20,7 +20,7 @@ const main = async () => {
     const app = new App(products, data, trade, fee, loss)
     app.start()
 
-    memwatch.on('leak', info => console.log(info))
+    //memwatch.on('leak', info => console.log(info))
 }
 
 try {

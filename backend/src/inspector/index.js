@@ -9,7 +9,7 @@ class Inspector {
             console.log('\n--initial state--')
             this.logInitial()
         }, 1000 * 10)
-        setInterval(this.log.bind(this), 1000 * 60 * 10)
+        setInterval(this.log.bind(this), 1000 * 60 * 60)
     }
 
     /**
@@ -28,16 +28,33 @@ class Inspector {
     }
 
     /**
+     * Tracks best percentage. 
+     */
+    trackPercentage(percentage) {
+        if (!this.bestPercentage) { 
+            this.bestPercentage = percentage 
+            return
+        }
+
+        if (percentage.isGreaterThan(this.bestPercentage)) {
+            this.bestPercentage = percentage
+        }
+    }
+
+    /**
      * Logs relevant data.
      */
     log() {
-        console.log(`\n${new Date()} - Status update\n`)
+        console.log(`\nStatus update\n`)
         console.log('--initial state--')
         this.logInitial()
         console.log('\n--current state--')
         this.logCurrent()
         console.log('\n--delta--')
         this.logDelta()
+        console.log('\n--best percentage-- ')
+        console.log(this.bestPercentage.toString())
+        this.bestPercentage = -100
 
     }
 
