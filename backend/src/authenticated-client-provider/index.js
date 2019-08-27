@@ -12,6 +12,8 @@ class AuthenticatedClientProvider {
         this.time = new Date().getTime()
         this.requests = 0
         this.maxRequests = 5
+
+        if (key === "" || secret === "" || passphrase === "") throw new Error('Please provide api details in config.json.')
     }
 
     getClient() {

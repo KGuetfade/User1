@@ -1,9 +1,9 @@
 {
     "PORT": 5000,
-    "DATABASE_URL": "mongodb+srv://karim:karim1910@user-one-wuaik.azure.mongodb.net/user-one?retryWrites=true&w=majority",
-    "COINBASE_PRO_API_KEY":"484a5be1c42596bad29e5d1ce3c46204",
-    "COINBASE_PRO_API_SECRET":"uptkMXIS/4L5SfM46yGvfcP0aQCRycIHyzCyDsuZaTgAuE3V4iJN84gOxeIuc7Q0JHyELQqAOoJvhStq4802zA==",
-    "COINBASE_PRO_API_PASSPHRASE": "p94b2kkgla9",
+    "DATABASE_URL": "",
+    "COINBASE_PRO_API_KEY":"",
+    "COINBASE_PRO_API_SECRET":"",
+    "COINBASE_PRO_API_PASSPHRASE": "",
     "COINBASE_PRO_API_URL":"https://api.pro.coinbase.com",
     "COINBASE_PRO_WS_URL":"wss://ws-feed.pro.coinbase.com",
     "BINANCE_WS_URL":"wss://stream.binance.com:9443"
