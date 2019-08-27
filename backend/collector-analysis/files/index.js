@@ -1,4 +1,4 @@
-const btcprice = 10000
+const btcprice = 1.00575
 const fees = [.8, .75, .6, .54, .45, .3, .24, .21, .18, .15]
 const volumeIntervals = [0, 5, 10, 20, 50, 100, 200, 500, 750, 1000, 2000, 5000, 10000, 20000]
 

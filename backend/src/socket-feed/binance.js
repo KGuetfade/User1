@@ -9,7 +9,7 @@ class Binance extends SocketFeed{
         super()
         this.url = url
         this.productID = productID
-        this.channel = `/ws/${this.productID.toLowerCase()}@trade`
+        this.channel = `/ws/${this.productID.toLowerCase()}@depth`
     }
 
     connect() {

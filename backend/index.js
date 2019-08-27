@@ -15,7 +15,7 @@ const main = async () => {
 
     const { data, trade, fee, loss } = program
 
-    const products = ['BTC-EUR', 'ETH-EUR', 'ETH-BTC']
+    const products = ['DAI-USDC', 'ETH-USDC', 'ETH-DAI']
 
     const app = new App(products, data, trade, fee, loss)
     app.start()
