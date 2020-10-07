@@ -1,6 +1,6 @@
 Crypto arbitrage bot
 
-## goal
+## Goal
 Create a bot that can trade arbitrage opportunities on coinbase-pro. Inspired by this article https://forum.gekko.wizb.it/thread-56746-post-57937.html. My primary intention for creating this project was to make an actual profit, but in hindsight it has mostly been a (great!) learning experience and should not be taken too seriously :).
 
 ## Implementation
